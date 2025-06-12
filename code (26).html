@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yo-Yo IR1 Pro Lapping System</title>
+    <style>
+        :root {
+            --primary-color: #d9534f;
+            --warn-color: #f0ad4e;
+            --out-color: #777;
+            --background-color: #f4f7f6;
+            --container-bg: #ffffff;
+            --text-color: #333;
+            --light-gray: #e9ecef;
+            --border-radius: 8px;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        .container {
+            position: relative;
+            background-color: var(--container-bg);
+            padding: 30px 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            text-align: center;
+        }
+        h1, h2 { margin-top: 0; margin-bottom: 15px; font-weight: 600; text-align: left; }
+        h2 { margin-top: 25px; font-size: 1.2rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 5px;}
+        .display-grid { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; background-color: var(--background-color); padding: 20px; border-radius: var(--border-radius); }
+        .display-row { display: flex; justify-content: space-around; gap: 15px; }
+        .display-box { flex: 1; display: flex; flex-direction: column; }
+        .display-box .label { font-size: 0.9rem; color: #6c757d; margin-bottom: 5px; text-transform: uppercase; font-weight: 600; }
+        .display-box .value { font-size: 2.0rem; font-weight: 700; color: var(--primary-color); font-family: 'Segoe UI', sans-serif; }
+        #timer { font-family: 'Courier New', Courier, monospace; }
+        #animationCanvas { width: 100%; height: auto; background-color: #f8f9fa; border-radius: var(--border-radius); border: 1px solid var(--light-gray); margin-bottom: 30px; }
+        .controls { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
+        .btn { padding: 12px 25px; font-size: 1rem; font-weight: 500; border: none; border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
+        .btn:active { transform: scale(0.98); }
+        #startBtn { background-color: #5cb85c; color: white; }
+        #pauseBtn { background-color: #f0ad4e; color: white; }
+        #resetBtn { background-color: #d9534f; color: white; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .name-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+        .name-btn {
+            padding: 10px; font-size: 1rem; background-color: #fff;
+            border: 1px solid var(--light-gray); border-radius: var(--border-radius);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .name-btn:hover:not(.warned):not(.out) { background-color: #e9ecef; }
+        .name-btn.warned { background-color: var(--warn-color); border-color: var(--warn-color); color: white; }
+        .name-btn.out {
+            background-color: var(--out-color); color: #ccc; border-color: var(--out-color);
+            text-decoration: line-through; pointer-events: none;
+        }
+        .results-display {
+            background-color: var(--background-color); border: 1px solid var(--light-gray); border-radius: var(--border-radius);
+            text-align: left; padding: 15px; max-height: 200px; overflow-y: auto;
+            white-space: pre; font-family: 'Courier New', Courier, monospace; font-size: 0.9rem;
+        }
+        .tab-nav { display: flex; border-bottom: 2px solid var(--light-gray); margin-bottom: 20px; }
+        .tab-btn {
+            padding: 10px 20px; cursor: pointer; border: none; background-color: transparent;
+            font-size: 1rem; font-weight: 600; color: #6c757d;
+            border-bottom: 3px solid transparent; margin-bottom: -2px;
+        }
+        .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="test-tab">Test</button>
+            <button class="tab-btn" data-tab="results-tab">Results</button>
+        </div>
+
+        <div class="tab-content-container">
+            <div id="test-tab" class="tab-content active">
+                <div class="display-grid">
+                    <div class="display-row">
+                        <div class="display-box"><span class="label">Level</span><div id="level" class="value">1</div></div>
+                        <div class="display-box"><span class="label">Speed</span><div id="speed" class="value">10.0 km/h</div></div>
+                        <div class="display-box"><span class="label">Segment</span><div id="segment" class="value">Ready</div></div>
+                    </div>
+                    <div class="display-row">
+                        <div class="display-box"><span class="label">Time</span><div id="timer" class="value">00:00.0</div></div>
+                        <div class="display-box"><span class="label">Total Distance</span><div id="distance" class="value">0m</div></div>
+                    </div>
+                </div>
+                <canvas id="animationCanvas" width="650" height="100"></canvas>
+                <h2>Athletes</h2>
+                <div id="name-grid" class="name-grid"></div>
+                <div class="controls">
+                    <button id="startBtn" class="btn">Start</button>
+                    <button id="pauseBtn" class="btn" disabled>Pause</button>
+                    <button id="resetBtn" class="btn">Reset</button>
+                </div>
+            </div>
+
+            <div id="results-tab" class="tab-content">
+                <h2>Final Results</h2>
+                <pre id="results-display" class="results-display">Awaiting test completion...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateYoYoIR1Timeline() {
+            // ... (Generator remains unchanged)
+            const yoYoLevels=[{level:1,speed_kmh:10},{level:2,speed_kmh:11.5},{level:3,speed_kmh:12},{level:4,speed_kmh:12.5},{level:5,speed_kmh:13},{level:6,speed_kmh:13.5},{level:7,speed_kmh:14},{level:8,speed_kmh:14.5},{level:9,speed_kmh:15},{level:10,speed_kmh:15.5},{level:11,speed_kmh:16},{level:12,speed_kmh:16.5},{level:13,speed_kmh:17},{level:14,speed_kmh:17.5},{level:15,speed_kmh:18},{level:16,speed_kmh:18.5},{level:17,speed_kmh:19},{level:18,speed_kmh:19.5},{level:19,speed_kmh:20},{level:20,speed_kmh:20.5},{level:21,speed_kmh:21},{level:22,speed_kmh:21.5},{level:23,speed_kmh:22}];const timeline=[];let currentTime=0,currentDistance=0;const RUN_LEG_DISTANCE=20,RECOVERY_TIME=10;for(const[index,stage]of yoYoLevels.entries()){const speed_mps=stage.speed_kmh*1e3/3600;const runLegTime=RUN_LEG_DISTANCE/speed_mps;const recoveryLegTime=RECOVERY_TIME/2;timeline.push({time:parseFloat(currentTime.toFixed(2)),distance:`${currentDistance}m`,level:stage.level,speed_kmh:stage.speed_kmh,segment:"Run Out"});currentTime+=runLegTime;currentDistance+=RUN_LEG_DISTANCE;timeline.push({time:parseFloat(currentTime.toFixed(2)),distance:`${currentDistance}m`,level:stage.level,speed_kmh:stage.speed_kmh,segment:"Run Back"});currentTime+=runLegTime;currentDistance+=RUN_LEG_DISTANCE;if(index<yoYoLevels.length-1){const nextStage=yoYoLevels[index+1];timeline.push({time:parseFloat(currentTime.toFixed(2)),distance:`${currentDistance}m`,level:nextStage.level,speed_kmh:nextStage.speed_kmh,segment:"Recovery Out"});currentTime+=recoveryLegTime;timeline.push({time:parseFloat(currentTime.toFixed(2)),distance:`${currentDistance}m`,level:nextStage.level,speed_kmh:nextStage.speed_kmh,segment:"Recovery Back"});currentTime+=recoveryLegTime}}return timeline
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const ATHLETES = ['Silas','Finley','Iraklis','Orestis','Erik','Arvid','Lion','Jakob','Paul','Levi','Lasse','Nicklas','Carl'];
+            const timeDistanceEvents = generateYoYoIR1Timeline();
+            
+            // --- Audio Setup ---
+            const beepSound = new Audio('https://videos-data.fra1.cdn.digitaloceanspaces.com/beep.wav');
+            const accelereSound = new Audio('https://videos-data.fra1.cdn.digitaloceanspaces.com/accelere.mp3');
+            const recoupSound = new Audio('https://videos-data.fra1.cdn.digitaloceanspaces.com/recoup.mp3');
+            
+            // --- UI Elements ---
+            const tabNav = document.querySelector('.tab-nav');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const nameGrid = document.getElementById('name-grid');
+            const resultsDisplay = document.getElementById('results-display');
+            const timerDisplay = document.getElementById('timer');
+            const distanceDisplay = document.getElementById('distance');
+            const levelDisplay = document.getElementById('level');
+            const speedDisplay = document.getElementById('speed');
+            const segmentDisplay = document.getElementById('segment');
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resetBtn = document.getElementById('resetBtn');
+
+            // --- Canvas Setup ---
+            const canvas = document.getElementById('animationCanvas'), ctx = canvas.getContext('2d');
+            const CANVAS_WIDTH = canvas.width, CANVAS_HEIGHT = canvas.height;
+            const PADDING = 150, START_X = PADDING, END_X = CANVAS_WIDTH - PADDING;
+            const travelDistance = END_X - START_X, RECOVERY_X = START_X - (travelDistance / 4);
+            const DOT_Y = CANVAS_HEIGHT / 2, DOT_RADIUS = 10, DOT_COLOR = '#d9534f', LINE_COLOR = '#adb5bd';
+
+            // --- State Management ---
+            let testState = 'idle';
+            let animationFrameId = null;
+            let startTime = 0, elapsedTimeOnPause = 0, lastEventIndex = -1;
+            let athletes = {};
+            let tappedInCurrentSegment = new Set();
+            
+            // --- Functions ---
+            function playBeep() {
+                beepSound.currentTime = 0;
+                beepSound.play().catch(error => console.error("Beep playback failed:", error));
+            }
+            function playAccelere() {
+                accelereSound.currentTime = 0;
+                accelereSound.play().catch(error => console.error("Accelere playback failed:", error));
+            }
+            function playRecoup() {
+                recoupSound.currentTime = 0;
+                recoupSound.play().catch(error => console.error("Recoup playback failed:", error));
+            }
+
+            function setupAthleteButtons() {
+                nameGrid.innerHTML='';athletes={};ATHLETES.forEach(name=>{athletes[name]={warnings:0,isOut:false,finalResult:null};const button=document.createElement('button');button.className='name-btn';button.textContent=name;button.dataset.name=name;nameGrid.appendChild(button)})
+            }
+
+            function updateResultsDisplay() {
+                const outAthletes=ATHLETES.map(name=>({name,...athletes[name]})).filter(athlete=>athlete.isOut&&athlete.finalResult);outAthletes.sort((a,b)=>{const distanceA=parseInt(a.finalResult.distance);const distanceB=parseInt(b.finalResult.distance);return distanceB-distanceA});const output=outAthletes.map(athlete=>{return`${athlete.name.padEnd(10)}: ${athlete.finalResult.distance}`}).join('\n');resultsDisplay.textContent=output||'No results recorded yet.'
+            }
+
+            function drawCanvasScene(dotX) {
+                ctx.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);ctx.strokeStyle=LINE_COLOR;ctx.lineWidth=2;ctx.beginPath();ctx.setLineDash([5,5]);ctx.moveTo(RECOVERY_X,DOT_Y-20);ctx.lineTo(RECOVERY_X,DOT_Y+20);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(START_X,DOT_Y-20);ctx.lineTo(START_X,DOT_Y+20);ctx.stroke();ctx.beginPath();ctx.moveTo(END_X,DOT_Y-20);ctx.lineTo(END_X,DOT_Y+20);ctx.stroke();ctx.fillStyle='#6c757d';ctx.font='14px Arial';ctx.textAlign='center';ctx.fillText('-5m',RECOVERY_X,DOT_Y-30);ctx.fillText('Start',START_X,DOT_Y-30);ctx.fillText('20m',END_X,DOT_Y-30);ctx.beginPath();ctx.arc(dotX,DOT_Y,DOT_RADIUS,0,Math.PI*2);ctx.fillStyle=DOT_COLOR;ctx.fill()
+            }
+
+            function formatTime(totalSeconds) {
+                const safeTotalSeconds=Math.max(0,totalSeconds);const minutes=Math.floor(safeTotalSeconds/60);const seconds=Math.floor(safeTotalSeconds%60);const tenths=Math.floor(safeTotalSeconds*10%10);return`${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}.${tenths}`
+            }
+
+            function handleStart() {
+                if (testState !== 'idle') return;
+                testState = 'running';
+                startTime = Date.now();
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                animationFrameId = requestAnimationFrame(updateUI);
+            }
+
+            function updateUI() {
+                if (testState !== 'running') return;
+                
+                const totalElapsedTime = (Date.now() - startTime) / 1000 + elapsedTimeOnPause;
+
+                let newIndex = lastEventIndex;
+                for (let i = (lastEventIndex > -1 ? lastEventIndex : 0) ; i < timeDistanceEvents.length; i++) {
+                    if (totalElapsedTime >= timeDistanceEvents[i].time) {
+                        newIndex = i;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (newIndex > lastEventIndex) {
+                    tappedInCurrentSegment.clear();
+                    const newEvent = timeDistanceEvents[newIndex];
+                    const segment = newEvent.segment;
+
+                    if (segment === 'Run Out') {
+                        playBeep();
+                        setTimeout(playAccelere, 150);
+                    } else if (segment === 'Run Back') {
+                        playBeep();
+                    } else if (segment === 'Recovery Out') {
+                        playBeep();
+                        setTimeout(playRecoup, 150);
+                    }
+                }
+                lastEventIndex = newIndex;
+                
+                const currentEvent = timeDistanceEvents[lastEventIndex];
+                const nextEvent = timeDistanceEvents[lastEventIndex + 1];
+                
+                timerDisplay.textContent = formatTime(totalElapsedTime);
+                if (currentEvent) {
+                    distanceDisplay.textContent = currentEvent.distance;
+                    levelDisplay.textContent = currentEvent.level;
+                    speedDisplay.textContent = `${currentEvent.speed_kmh.toFixed(1)} km/h`;
+                    segmentDisplay.textContent = currentEvent.segment;
+                }
+
+                let dotX = START_X;
+                if (currentEvent && nextEvent) {
+                    const segmentDuration=nextEvent.time-currentEvent.time;const timeIntoSegment=totalElapsedTime-currentEvent.time;const progressPercentage=segmentDuration>0?Math.min(100,timeIntoSegment/segmentDuration*100):0;const progressRatio=progressPercentage/100;switch(currentEvent.segment){case'Run Out':dotX=START_X+travelDistance*progressRatio;break;case'Run Back':dotX=END_X-travelDistance*progressRatio;break;case'Recovery Out':dotX=START_X-(START_X-RECOVERY_X)*progressRatio;break;case'Recovery Back':dotX=RECOVERY_X+(START_X-RECOVERY_X)*progressRatio;break}
+                } else if (currentEvent) {
+                    dotX = START_X; stopTest(); timerDisplay.textContent = formatTime(currentEvent.time);
+                }
+
+                drawCanvasScene(dotX);
+                if (testState === 'running') { animationFrameId = requestAnimationFrame(updateUI); }
+            }
+            
+            function stopTest() {
+                testState = 'finished'; startBtn.disabled = true; pauseBtn.disabled = true;
+            }
+
+            function handleNameTap(event) {
+                if(testState!=='running')return;const button=event.target.closest('.name-btn');if(!button)return;const name=button.dataset.name;const athlete=athletes[name];if(athlete.isOut||tappedInCurrentSegment.has(name)){return}tappedInCurrentSegment.add(name);if(athlete.warnings===0){athlete.warnings=1;button.classList.add('warned')}else{athlete.isOut=true;const finalScoreEvent=lastEventIndex>0?timeDistanceEvents[lastEventIndex-1]:{level:1,distance:'0m'};athlete.finalResult={level:finalScoreEvent.level,distance:finalScoreEvent.distance};button.classList.remove('warned');button.classList.add('out');updateResultsDisplay()}
+            }
+
+            function handlePause() {
+                if(testState==='running'){testState='paused';cancelAnimationFrame(animationFrameId);elapsedTimeOnPause+=(Date.now()-startTime)/1e3;pauseBtn.textContent='Resume'}else if(testState==='paused'){testState='running';startTime=Date.now();pauseBtn.textContent='Pause';animationFrameId=requestAnimationFrame(updateUI)}
+            }
+
+            function activateTab(tabId) {
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+            }
+
+            function handleTabClick(event) {
+                const button = event.target.closest('.name-btn') || event.target.closest('.tab-btn');
+                if (button && button.matches('.tab-btn')) { activateTab(button.dataset.tab); }
+            }
+
+            function handleReset() {
+                cancelAnimationFrame(animationFrameId);
+                testState = 'idle';
+                startTime = 0; elapsedTimeOnPause = 0; lastEventIndex = -1;
+                timerDisplay.textContent = '00:00.0'; distanceDisplay.textContent = '0m';
+                levelDisplay.textContent = '1'; speedDisplay.textContent = '10.0 km/h';
+                segmentDisplay.textContent = 'Ready';
+                drawCanvasScene(START_X);
+                tappedInCurrentSegment.clear();
+                setupAthleteButtons();
+                resultsDisplay.textContent = 'Awaiting test completion...';
+                startBtn.disabled = false; pauseBtn.disabled = true; pauseBtn.textContent = 'Pause';
+                activateTab('test-tab');
+            }
+
+            // --- Event Listeners and Initial Setup ---
+            tabNav.addEventListener('click', handleTabClick);
+            nameGrid.addEventListener('click', handleNameTap);
+            startBtn.addEventListener('click', handleStart);
+            pauseBtn.addEventListener('click', handlePause);
+            resetBtn.addEventListener('click', handleReset);
+            
+            handleReset();
+        });
+    </script>
+</body>
+</html>
