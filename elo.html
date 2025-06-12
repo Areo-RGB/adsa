@@ -18,7 +18,7 @@
 
 </head>
 
-<body class="theme-light">
+<body class="theme-light" data-no-swup>
 
 <div id="preloader"><div class="spinner-border color-highlight" role="status"></div></div>
 
@@ -192,8 +192,8 @@
             </div>
         </div>
     </div>
-    
-    
+
+
 
 
 
@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { id: "arvid", name: "Arvid" }, { id: "lion", name: "Lion" },
         { id: "jakob", name: "Jakob" }, { id: "paul", name: "Paul" },
         { id: "levi", name: "Levi" }, { id: "lasse", name: "Lasse" },
-        { id: "nicklas", name: "Nicklas" }, 
+        { id: "nicklas", name: "Nicklas" },
     ];
 
     const playerListContainer = document.getElementById('player-list-container');
@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const footerBar = document.getElementById('footer-bar');
         const bodyElement = document.body;
         // const eloPageHeader = document.getElementById('elo-page-header'); // The new header
-        
+
         navButtons.forEach(button => {
             button.addEventListener('click', () => {
                 navButtons.forEach(btn => {
@@ -1079,7 +1079,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateNewsTicker() {
         // This function might be for a generic news ticker, keeping it separate from updateNewsTickerLive
-        // For now, not essential if updateNewsTickerLive covers the live view's needs.
         console.log("Generic news ticker update (if used).");
     }
 
