@@ -5,115 +5,252 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<title>qV</title>
+<title>YoYo Test</title>
 <link rel="stylesheet" type="text/css" href="styles/bootstrap.css">
 <link rel="stylesheet" type="text/css" href="styles/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="fonts/css/fontawesome-all.min.css">
-<link rel="manifest" href="_manifest.json">
+<link rel="manifest" href="_manifest.json" data-pwa-version="set_in_manifest_and_pwa_js">
 <link rel="apple-touch-icon" sizes="180x180" href="app/icons/icon-192x192.png">
 </head>
 
-<body class="theme-light" data-highlight="highlight-red">
+<body id="page-yoyo-body" class="theme-light" data-highlight="highlight-blue" data-gradient="body-default" data-no-swup>
 
 <div id="preloader"><div class="spinner-border color-highlight" role="status"></div></div>
 
 <div id="page">
 
-    <div class="header header-auto-show header-fixed header-logo-center">
-        <a href="home.html" class="header-title">AppKit</a>
-        <a href="#" data-menu="menu-main" class="header-icon header-icon-1"><i class="fas fa-bars"></i></a>
-        <a href="#" data-toggle-theme class="header-icon header-icon-4 show-on-theme-dark"><i class="fas fa-sun"></i></a>
-        <a href="#" data-toggle-theme class="header-icon header-icon-4 show-on-theme-light"><i class="fas fa-moon"></i></a>
-        <a href="#" data-menu="menu-share" class="header-icon header-icon-3"><i class="fas fa-share-alt"></i></a>
+    <div class="header header-fixed header-logo-center">
+        <a href="index.html" class="header-title default-link">YoYo Test</a>
+        <a href="#" data-back-button class="header-icon header-icon-1 default-link"><i class="fas fa-arrow-left"></i></a>
+        <a href="#" data-toggle-theme class="header-icon header-icon-4 default-link"><i class="fas fa-lightbulb"></i></a>
     </div>
 
+    <div class="page-content header-clear-medium">
 
-    <div id="footer-bar" class="footer-bar-6">
-        <a href="index-components.html"><i class="fa fa-layer-group"></i><span>Features</span></a>
-        <a href="index-pages.html"><i class="fa fa-file"></i><span>Pages</span></a>
-        <a href="index.html" class="circle-nav active-nav"><i class="fa fa-home"></i><span>Welcome</span></a>
-        <a href="index-projects.html"><i class="fa fa-image"></i><span>Projects</span></a>
-        <a href="#" data-menu="menu-main"><i class="fa fa-bars"></i><span>Menu</span></a>
-    </div>
+        <!-- Athletes Distance List -->
+        <div class="card card-style">
+            <div class="content">
+                <h4 class="mb-3"><i class="fa fa-users me-2 color-highlight"></i>Athletes Distance Records</h4>
 
-    <div id="menu-main" class="menu menu-box-left rounded-0" data-menu-width="280" data-menu-active="nav-welcome" data-menu-load="menu-main.html"></div>
-    <div id="menu-share" class="menu menu-box-bottom rounded-m"  data-menu-load="menu-share.html" data-menu-height="370"> </div>
-    <div id="menu-colors" class="menu menu-box-bottom rounded-m" data-menu-load="menu-colors.html" data-menu-height="480"></div>
+                <!-- Player Selection Controls -->
+                <div class="selection-controls mb-3 p-2 bg-blue-light rounded-s border border-blue-dark">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="mb-0 font-600"><i class="fa fa-check-square me-2 color-highlight"></i>Player Selection</h6>
+                        <div>
+                            <a href="#" id="selectAllPlayersBtn" class="btn btn-xs rounded-s bg-highlight text-white me-1 default-link">
+                                <i class="fa fa-check-double fa-xs me-1"></i>All
+                            </a>
+                            <a href="#" id="deselectAllPlayersBtn" class="btn btn-xs rounded-s bg-red-dark text-white default-link">
+                                <i class="fa fa-times fa-xs me-1"></i>None
+                            </a>
+                        </div>
+                    </div>
+                    <p class="font-10 opacity-70 mb-0">Select players to participate. Before the test starts, click a player's name to select/deselect them.</p>
+                </div>
 
+                <!-- Athlete List -->
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="silas">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-silas" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Silas</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-silas" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="iraklis">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-iraklis" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Iraklis</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-iraklis" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="orestis">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-orestis" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Orestis</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-orestis" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="august">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-august" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">August</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-august" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="erik">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-erik" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Erik</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-erik" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="arvid">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-arvid" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Arvid</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-arvid" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="lion">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-lion" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Lion</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-lion" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="jakob">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-jakob" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Jakob</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-jakob" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="paul">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-paul" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Paul</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-paul" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="levi">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-levi" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Levi</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-levi" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="lasse">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-lasse" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Lasse</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-lasse" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-light athlete-row" data-athlete-name="nicklas">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-nicklas" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Nicklas</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-nicklas" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+                <div class="d-flex align-items-center mb-0 pb-0 athlete-row" data-athlete-name="carl">
+                    <input type="checkbox" class="athlete-checkbox" id="checkbox-carl" checked>
+                    <div class="flex-grow-1"><h6 class="mb-0 athlete-name p-1 rounded-s border">Carl</h6></div>
+                    <div class="ms-3" style="min-width: 120px;"><div class="input-style has-borders no-icon mb-0"><select id="distance-carl" class="form-select-sm distance-dropdown"></select><span><i class="fa fa-chevron-down"></i></span></div></div>
+                </div>
+            </div>
+        </div>
 
-     <div class="page-content">
+        <!-- Workflow Control Buttons -->
+        <div class="card card-style">
+            <div class="content text-center">
+                <h4 class="mb-3"><i class="fa fa-list-ol me-2 color-highlight"></i>Test Workflow</h4>
 
+                <!-- Step 1: Start Session -->
+                <div class="mb-3" id="step1">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="input-style input-style-always-active has-borders no-icon mb-3">
+                                <input type="text" class="form-control" id="sessionName" placeholder="e.g., Pre-season Test" value="YoYo Test">
+                                <label for="sessionName" class="color-highlight font-10 font-900">SESSION NAME</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="input-style input-style-always-active has-borders no-icon">
+                                <input type="date" class="form-control" id="sessionDate" value="">
+                                <label for="sessionDate" class="color-highlight font-10 font-900">TEST DATE</label>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-full btn-l rounded-s bg-blue-dark shadow-xl text-uppercase font-900 mb-2 default-link" id="startSessionBtn">
+                        <i class="fa fa-users me-2"></i>1. Start Session
+                    </a>
+                    <p class="font-10 opacity-70 mb-0">Initialize session with selected players</p>
+                </div>
 
-    </div>
-    <!-- End of Page Content-->
-    <!-- All Menus, Action Sheets, Modals, Notifications, Toasts, Snackbars get Placed outside the <div class="page-content"> -->
+                <!-- Step 2: Start Test -->
+                <div class="mb-3" id="step2" style="display: none;">
+                    <a href="#" class="btn btn-full btn-l rounded-s bg-green-dark shadow-xl text-uppercase font-900 mb-2 default-link" id="startTestBtn">
+                        <i class="fa fa-play me-2"></i>2. Start Test
+                    </a>
+                    <p class="font-10 opacity-70 mb-0">Begin YoYo test and start timer</p>
+                </div>
 
-    <!-- Menu Share -->
-    <div id="menu-share" class="menu menu-box-bottom menu-box-detached">
-        <div class="menu-title mt-n1"><h1>Share the Love</h1><p class="color-highlight">Just Tap the Social Icon. We'll add the Link</p><a href="#" class="close-menu"><i class="fa fa-times"></i></a></div>
-        <div class="content mb-0">
-            <div class="divider mb-0"></div>
-            <div class="list-group list-custom-small list-icon-0">
-                <a href="auto_generated" class="shareToFacebook external-link">
-                    <i class="font-18 fab fa-facebook-square color-facebook"></i>
-                    <span class="font-13">Facebook</span>
-                    <i class="fa fa-angle-right"></i>
-                </a>
-                <a href="auto_generated" class="shareToTwitter external-link">
-                    <i class="font-18 fab fa-twitter-square color-twitter"></i>
-                    <span class="font-13">Twitter</span>
-                    <i class="fa fa-angle-right"></i>
-                </a>
-                <a href="auto_generated" class="shareToLinkedIn external-link">
-                    <i class="font-18 fab fa-linkedin color-linkedin"></i>
-                    <span class="font-13">LinkedIn</span>
-                    <i class="fa fa-angle-right"></i>
-                </a>
-                <a href="auto_generated" class="shareToWhatsApp external-link">
-                    <i class="font-18 fab fa-whatsapp-square color-whatsapp"></i>
-                    <span class="font-13">WhatsApp</span>
-                    <i class="fa fa-angle-right"></i>
-                </a>
-                <a href="auto_generated" class="shareToMail external-link border-0">
-                    <i class="font-18 fa fa-envelope-square color-mail"></i>
-                    <span class="font-13">Email</span>
-                    <i class="fa fa-angle-right"></i>
-                </a>
+                <!-- Step 3: Finish Test -->
+                <div class="mb-3" id="step3" style="display: none;">
+                    <a href="#" class="btn btn-full btn-l rounded-s bg-orange-dark shadow-xl text-uppercase font-900 mb-2 default-link" id="finishTestBtn">
+                        <i class="fa fa-flag-checkered me-2"></i>3. Finish & Save
+                    </a>
+                    <p class="font-10 opacity-70 mb-0">Complete test and save all data</p>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <a href="#" id="resetWorkflowBtn" class="btn btn-s btn-full rounded-s bg-red-dark text-uppercase font-900 default-link">
+                            <i class="fa fa-redo me-2"></i>Reset
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="#" id="resetDatabaseBtn" class="btn btn-s btn-full rounded-s bg-yellow-dark text-uppercase font-900 default-link">
+                            <i class="fa fa-trash me-2"></i>Reset DB
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timer Card -->
+        <div class="card card-style" id="timerCard" style="display: none;">
+            <div class="content text-center">
+                <div class="mb-3">
+                    <i class="fa fa-stopwatch color-highlight fa-3x mb-2"></i>
+                    <h3 class="mb-1 font-700">Test Duration</h3>
+                </div>
+                <div class="row text-center mb-3">
+                    <div class="col-4">
+                        <h1 class="mb-n1 color-highlight font-32" id="timerMinutes">00</h1>
+                        <p class="font-9 mb-0 pb-0 opacity-70">MINUTES</p>
+                    </div>
+                    <div class="col-4">
+                        <h1 class="mb-n1 color-highlight font-32" id="timerSeconds">00</h1>
+                        <p class="font-9 mb-0 pb-0 opacity-70">SECONDS</p>
+                    </div>
+                    <div class="col-4">
+                        <h1 class="mb-n1 color-highlight font-32" id="timerMilliseconds">0</h1>
+                        <p class="font-9 mb-0 pb-0 opacity-70">TENTHS</p>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <a href="#" id="pauseResumeBtn" class="btn btn-s rounded-s bg-yellow-dark text-uppercase font-900 me-2 default-link">
+                        <i class="fa fa-pause me-2"></i><span class="btn-text">Pause</span>
+                    </a>
+                    <a href="#" id="resetYoYoTestBtn" class="btn btn-s rounded-s bg-red-dark text-uppercase font-900 default-link">
+                        <i class="fa fa-redo me-2"></i>Reset
+                    </a>
+                </div>
+
+                <div class="divider mt-4"></div>
+                <div class="row mb-0 text-center">
+                    <div class="col-4"><h5 class="mb-0" id="yoyoLevel">--</h5><p class="font-10 opacity-70 mb-0">Level</p></div>
+                    <div class="col-4"><h5 class="mb-0" id="yoyoLeg">--</h5><p class="font-10 opacity-70 mb-0">Leg</p></div>
+                    <div class="col-4"><h5 class="mb-0" id="yoyoDistance">0m</h5><p class="font-10 opacity-70 mb-0">Distance</p></div>
+                </div>
+                <div class="row mb-0 mt-3 text-center">
+                    <div class="col-6"><h5 class="mb-0" id="nextAction">--</h5><p class="font-10 opacity-70 mb-0">Next Action</p></div>
+                    <div class="col-6"><h5 class="mb-0" id="timeToNextAction">--</h5><p class="font-10 opacity-70 mb-0">Time to Next</p></div>
+                </div>
+                <p class="font-10 opacity-50 mb-0 mt-3">Test started at <span id="testStartTimeDisplay">--:--</span></p>
+            </div>
+        </div>
+
+        <!-- YoYo Test Ranking List -->
+        <div class="card card-style">
+            <div class="content">
+                <h4 class="mb-3"><i class="fa fa-trophy me-2 color-highlight"></i>All-Time Best Rankings</h4>
+                <p class="font-11 opacity-70 mb-3">Top 15 personal best distances from all sessions</p>
+                <div id="allTimeBestRankings"><div id="allTimeBestList"><p class="text-center opacity-50 font-11">Loading all-time best rankings...</p></div></div>
+                <hr class="my-4">
+                <div id="totalCareerDistances">
+                    <h5 class="mb-3 font-600"><i class="fa fa-route me-2 color-green-dark"></i>Total Career Distances</h5>
+                    <div id="totalDistancesList"><p class="text-center opacity-50 font-11">Loading total distances...</p></div>
+                </div>
+                <hr class="my-4">
+                <div id="currentSessionProgress">
+                    <h5 class="mb-2 font-600">Current Session Progress</h5>
+                    <div id="currentSessionList"><p class="text-center opacity-50 font-11">No active session. Start a session to see live progress.</p></div>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Be sure this is on your main visiting page, for example, the index.html page-->
-    <!-- Install Prompt for Android -->
-    <div id="menu-install-pwa-android" class="menu menu-box-bottom rounded-m">
-        <img class="mx-auto mt-4 rounded-m" src="app/icons/icon-128x128.png" alt="img" width="90">
-        <h4 class="text-center mt-4 mb-2">Appkit on your Home Screen</h4>
-        <p class="text-center boxed-text-xl">
-            Install Appkit on your home screen, and access it just like a regular app. It really is that simple!
-        </p>
-        <div class="boxed-text-l">
-            <a href="#" class="pwa-install mx-auto btn btn-m font-600 bg-highlight">Add to Home Screen</a>
-            <a href="#" class="pwa-dismiss close-menu btn-full mt-3 pt-2 text-center text-uppercase font-600 color-red-light font-12 pb-4 mb-3">Maybe later</a>
-        </div>
-    </div>
-
-    <!-- Install instructions for iOS -->
-    <div id="menu-install-pwa-ios" class="menu menu-box-bottom rounded-m">
-        <div class="boxed-text-xl top-25">
-            <img class="mx-auto mt-4 rounded-m" src="app/icons/icon-128x128.png" alt="img" width="90">
-            <h4 class="text-center mt-4 mb-2">Appkit on your Home Screen</h4>
-            <p class="text-center ms-3 me-3">
-                Install Appkit on your home screen, and access it just like a regular app. Open your Safari menu and tap "Add to Home Screen".
-            </p>
-            <a href="#" class="pwa-dismiss close-menu btn-full mt-3 text-center text-uppercase font-700 color-red-light opacity-90 font-110 pb-5">Maybe later</a>
-        </div>
-    </div>
-
 </div>
 
+<!-- Audio Cues -->
+<audio id="startSound" preload="auto"></audio>
+<audio id="backSound" preload="auto"></audio>
+<audio id="recoverySound" preload="auto"></audio>
+
 <script type="text/javascript" src="scripts/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="text/javascript" src="scripts/custom.js"></script>
+
 </body>
+</html>

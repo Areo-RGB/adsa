@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Global Variables
     let isPWA = true;  // Enables or disables the service worker and PWA
-    let isAJAX = true; // AJAX transitions. Requires local server or server
-    var pwaName = "Appkit"; //Local Storage Names for PWA
+    let isAJAX = false; // AJAX transitions. Requires local server or server
+    var pwaName = "qV"; //Local Storage Names for PWA
     var pwaRemind = 1; //Days to re-remind to add to home
     var pwaNoCache = false; //Requires server and HTTPS/SSL. Will clear cache with each visit
 
@@ -18,8 +18,1029 @@ document.addEventListener('DOMContentLoaded', () => {
     var pwaScope = "/";
     var pwaLocation = "/_service-worker.js";
 
+    // --- Start of YoYo Test Page "Global" State ---
+    const supabaseUrl = 'https://qfngdawbbzisdwqvogxs.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmbmdkYXdiYnppc2R3cXZvZ3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MDc2MzMsImV4cCI6MjA2NDE4MzYzM30.wrBZ8lfn2dNmOlX8v4mTJ1eaTcYzC7SUKb0tmhzqsIU';
+    let supabaseClient;
+    const yoyoScheduleData = [
+        { 'leg': 0, 'level': null, 'speed_kmh': null, 'total_time_seconds': 0.0, 'total_time_formatted': '00:00.0', 'total_distance_m': 0, 'action': 'start', 'is_recovery': false },
+        { 'leg': 1, 'level': 5, 'speed_kmh': 10.0, 'total_time_seconds': 7.2, 'total_time_formatted': '00:07.2', 'total_distance_m': 20, 'action': 'out', 'is_recovery': false },
+        { 'leg': 2, 'level': 5, 'speed_kmh': 10.0, 'total_time_seconds': 14.4, 'total_time_formatted': '00:14.4', 'total_distance_m': 40, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 24.4, 'total_time_formatted': '00:24.4', 'total_distance_m': 40, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 3, 'level': 9, 'speed_kmh': 12.0, 'total_time_seconds': 30.4, 'total_time_formatted': '00:30.4', 'total_distance_m': 60, 'action': 'out', 'is_recovery': false },
+        { 'leg': 4, 'level': 9, 'speed_kmh': 12.0, 'total_time_seconds': 36.4, 'total_time_formatted': '00:36.4', 'total_distance_m': 80, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 46.4, 'total_time_formatted': '00:46.4', 'total_distance_m': 80, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 5, 'level': 11, 'speed_kmh': 13.0, 'total_time_seconds': 52.0, 'total_time_formatted': '00:52.0', 'total_distance_m': 100, 'action': 'out', 'is_recovery': false },
+        { 'leg': 6, 'level': 11, 'speed_kmh': 13.0, 'total_time_seconds': 57.5, 'total_time_formatted': '00:57.5', 'total_distance_m': 120, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 67.5, 'total_time_formatted': '01:07.5', 'total_distance_m': 120, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 7, 'level': 11, 'speed_kmh': 13.0, 'total_time_seconds': 73.1, 'total_time_formatted': '01:13.1', 'total_distance_m': 140, 'action': 'out', 'is_recovery': false },
+        { 'leg': 8, 'level': 11, 'speed_kmh': 13.0, 'total_time_seconds': 78.6, 'total_time_formatted': '01:18.6', 'total_distance_m': 160, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 88.6, 'total_time_formatted': '01:28.6', 'total_distance_m': 160, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 9, 'level': 12, 'speed_kmh': 13.5, 'total_time_seconds': 93.9, 'total_time_formatted': '01:33.9', 'total_distance_m': 180, 'action': 'out', 'is_recovery': false },
+        { 'leg': 10, 'level': 12, 'speed_kmh': 13.5, 'total_time_seconds': 99.3, 'total_time_formatted': '01:39.3', 'total_distance_m': 200, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 109.3, 'total_time_formatted': '01:49.3', 'total_distance_m': 200, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 11, 'level': 12, 'speed_kmh': 13.5, 'total_time_seconds': 114.6, 'total_time_formatted': '01:54.6', 'total_distance_m': 220, 'action': 'out', 'is_recovery': false },
+        { 'leg': 12, 'level': 12, 'speed_kmh': 13.5, 'total_time_seconds': 120.0, 'total_time_formatted': '02:00.0', 'total_distance_m': 240, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 130.0, 'total_time_formatted': '02:10.0', 'total_distance_m': 240, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 13, 'level': 12, 'speed_kmh': 13.5, 'total_time_seconds': 135.3, 'total_time_formatted': '02:15.3', 'total_distance_m': 260, 'action': 'out', 'is_recovery': false },
+        { 'leg': 14, 'level': 12, 'speed_kmh': 13.5, 'total_time_seconds': 140.7, 'total_time_formatted': '02:20.7', 'total_distance_m': 280, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 150.7, 'total_time_formatted': '02:30.7', 'total_distance_m': 280, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 15, 'level': 13, 'speed_kmh': 14.0, 'total_time_seconds': 155.8, 'total_time_formatted': '02:35.8', 'total_distance_m': 300, 'action': 'out', 'is_recovery': false },
+        { 'leg': 16, 'level': 13, 'speed_kmh': 14.0, 'total_time_seconds': 160.9, 'total_time_formatted': '02:40.9', 'total_distance_m': 320, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 170.9, 'total_time_formatted': '02:50.9', 'total_distance_m': 320, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 17, 'level': 13, 'speed_kmh': 14.0, 'total_time_seconds': 176.1, 'total_time_formatted': '02:56.1', 'total_distance_m': 340, 'action': 'out', 'is_recovery': false },
+        { 'leg': 18, 'level': 13, 'speed_kmh': 14.0, 'total_time_seconds': 181.2, 'total_time_formatted': '03:01.2', 'total_distance_m': 360, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 191.2, 'total_time_formatted': '03:11.2', 'total_distance_m': 360, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 19, 'level': 13, 'speed_kmh': 14.0, 'total_time_seconds': 196.4, 'total_time_formatted': '03:16.4', 'total_distance_m': 380, 'action': 'out', 'is_recovery': false },
+        { 'leg': 20, 'level': 13, 'speed_kmh': 14.0, 'total_time_seconds': 201.5, 'total_time_formatted': '03:21.5', 'total_distance_m': 400, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 211.5, 'total_time_formatted': '03:31.5', 'total_distance_m': 400, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 21, 'level': 13, 'speed_kmh': 14.0, 'total_time_seconds': 216.7, 'total_time_formatted': '03:36.7', 'total_distance_m': 420, 'action': 'out', 'is_recovery': false },
+        { 'leg': 22, 'level': 13, 'speed_kmh': 14.0, 'total_time_seconds': 221.8, 'total_time_formatted': '03:41.8', 'total_distance_m': 440, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 231.8, 'total_time_formatted': '03:51.8', 'total_distance_m': 440, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 23, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 236.8, 'total_time_formatted': '03:56.8', 'total_distance_m': 460, 'action': 'out', 'is_recovery': false },
+        { 'leg': 24, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 241.7, 'total_time_formatted': '04:01.7', 'total_distance_m': 480, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 251.7, 'total_time_formatted': '04:11.7', 'total_distance_m': 480, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 25, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 256.7, 'total_time_formatted': '04:16.7', 'total_distance_m': 500, 'action': 'out', 'is_recovery': false },
+        { 'leg': 26, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 261.6, 'total_time_formatted': '04:21.6', 'total_distance_m': 520, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 271.6, 'total_time_formatted': '04:31.6', 'total_distance_m': 520, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 27, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 276.6, 'total_time_formatted': '04:36.6', 'total_distance_m': 540, 'action': 'out', 'is_recovery': false },
+        { 'leg': 28, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 281.5, 'total_time_formatted': '04:41.5', 'total_distance_m': 560, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 291.5, 'total_time_formatted': '04:51.5', 'total_distance_m': 560, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 29, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 296.5, 'total_time_formatted': '04:56.5', 'total_distance_m': 580, 'action': 'out', 'is_recovery': false },
+        { 'leg': 30, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 301.4, 'total_time_formatted': '05:01.4', 'total_distance_m': 600, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 311.4, 'total_time_formatted': '05:11.4', 'total_distance_m': 600, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 31, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 316.4, 'total_time_formatted': '05:16.4', 'total_distance_m': 620, 'action': 'out', 'is_recovery': false },
+        { 'leg': 32, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 321.3, 'total_time_formatted': '05:21.3', 'total_distance_m': 640, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 331.3, 'total_time_formatted': '05:31.3', 'total_distance_m': 640, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 33, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 336.3, 'total_time_formatted': '05:36.3', 'total_distance_m': 660, 'action': 'out', 'is_recovery': false },
+        { 'leg': 34, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 341.2, 'total_time_formatted': '05:41.2', 'total_distance_m': 680, 'action': 'back', 'is_recovery': false },
+        { 'leg': null, 'level': null, 'speed_kmh': null, 'total_time_seconds': 351.2, 'total_time_formatted': '05:51.2', 'total_distance_m': 680, 'action': 'recovery', 'is_recovery': true },
+        { 'leg': 35, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 356.2, 'total_time_formatted': '05:56.2', 'total_distance_m': 700, 'action': 'out', 'is_recovery': false },
+        { 'leg': 36, 'level': 14, 'speed_kmh': 14.5, 'total_time_seconds': 361.1, 'total_time_formatted': '06:01.1', 'total_distance_m': 720, 'action': 'back', 'is_recovery': false }
+    ];
+    const currentSession = {
+        name: '',
+        athletes: {},
+        rankings: [],
+        sessionId: null,
+        testDate: null
+    };
+    let sessionStarted = false;
+    let yoyoTestStarted = false;
+    let testStartTime = null;
+    let timerInterval = null;
+    let nextEventIndex = 0;
+    let isPaused = false;
+    let timeWhenPaused = 0;
+    let startSound, backSound, recoverySound;
+    let activeSessionData = null;
+    // --- End of YoYo Test Page "Global" State ---
+
     //Place all your custom Javascript functions and plugin calls below this line
     function init_template(){
+
+        // --- Start of General Purpose Utility Functions ---
+        function showToast(title, message, type = 'info') {
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                Object.assign(toastContainer.style, {
+                    position: 'fixed', top: '20px', right: '20px', zIndex: '9999', maxWidth: '350px'
+                });
+                document.body.appendChild(toastContainer);
+            }
+            const toast = document.createElement('div');
+            const toastId = 'toast-' + Date.now();
+            toast.id = toastId;
+
+            let bgColor, iconClass, iconColor;
+            switch(type) {
+                case 'success': bgColor = 'bg-green-dark'; iconClass = 'fa-check-circle'; iconColor = 'color-green-light'; break;
+                case 'error': bgColor = 'bg-red-dark'; iconClass = 'fa-exclamation-circle'; iconColor = 'color-red-light'; break;
+                case 'warning': bgColor = 'bg-yellow-dark'; iconClass = 'fa-exclamation-triangle'; iconColor = 'color-yellow-light'; break;
+                default: bgColor = 'bg-highlight'; iconClass = 'fa-info-circle'; iconColor = 'color-blue-light';
+            }
+
+            toast.className = `card card-style ${bgColor} shadow-xl mb-3`;
+            toast.style.animation = 'slideInRight 0.3s ease-out';
+            toast.style.marginBottom = '10px';
+
+            toast.innerHTML = `
+                <div class="content">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3"> <i class="fa ${iconClass} ${iconColor} fa-lg"></i> </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1 font-600 color-white">${title}</h6>
+                            <p class="mb-0 font-11 color-white opacity-80">${message}</p>
+                        </div>
+                        <div class="ms-2"> <a href="#" id="toast-closer-${toastId}" class="color-white opacity-50"> <i class="fa fa-times"></i> </a> </div>
+                    </div>
+                </div>`;
+            toastContainer.appendChild(toast);
+            document.getElementById(`toast-closer-${toastId}`).addEventListener('click', (e) => {
+                e.preventDefault();
+                removeToast(toastId);
+            });
+            setTimeout(() => { removeToast(toastId); }, 5000);
+        }
+
+        function removeToast(toastId) {
+            const toast = document.getElementById(toastId);
+            if (toast) {
+                toast.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => {
+                    if (toast.parentNode) { toast.parentNode.removeChild(toast); }
+                }, 300);
+            }
+        }
+
+        function playBeep(frequency = 880, duration = 200) {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const oscillator = ctx.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.value = frequency;
+                oscillator.connect(ctx.destination);
+                oscillator.start();
+                setTimeout(() => {
+                    oscillator.stop();
+                    ctx.close();
+                }, duration);
+            } catch (err) {
+                console.warn('Web Audio API beep failed:', err);
+            }
+        }
+
+        function playSound(audioElement, fallbackFrequency = 880, duration = 200) {
+            if (audioElement && audioElement.src) {
+                const playPromise = audioElement.play?.();
+                if (playPromise && typeof playPromise.catch === 'function') {
+                    playPromise.catch(() => playBeep(fallbackFrequency, duration));
+                }
+            } else {
+                playBeep(fallbackFrequency, duration);
+            }
+        }
+        // --- End of General Purpose Utility Functions ---
+
+        // --- Start of YoYo Test Page Specific Logic ---
+        if (document.body.id === 'page-yoyo-body') {
+
+            function setAthleteRowState(row, state) {
+                const nameEl = row.querySelector('.athlete-name');
+                if(!nameEl) return;
+
+                // Define classes for each state [Normal, Warning, Eliminated] for both themes
+                const lightStateClasses = [
+                    ['color-gray-dark', 'border-gray-dark', 'bg-fade-gray-light'],
+                    ['color-orange-dark', 'border-orange-dark', 'bg-fade-orange-light'],
+                    ['color-red-dark', 'border-red-dark', 'bg-fade-red-light']
+                ];
+                const darkStateClasses = [
+                    ['color-gray-light', 'border-gray-dark', 'bg-fade-gray-dark'],
+                    ['color-yellow-dark', 'border-yellow-dark', 'bg-fade-yellow-light'],
+                    ['color-red-light', 'border-red-dark', 'bg-fade-red-light']
+                ];
+                const allPossibleClasses = [...new Set([...lightStateClasses.flat(), ...darkStateClasses.flat()])];
+
+                nameEl.classList.remove(...allPossibleClasses);
+
+                const isDarkMode = document.body.classList.contains('theme-dark');
+                const classesToAdd = (isDarkMode ? darkStateClasses : lightStateClasses)[state];
+
+                if(classesToAdd) {
+                    nameEl.classList.add(...classesToAdd, 'font-600');
+                }
+
+                if (state === 2) {
+                    nameEl.textContent = 'Raus!';
+                } else {
+                    nameEl.textContent = row.dataset.athleteName.charAt(0).toUpperCase() + row.dataset.athleteName.slice(1);
+                }
+                row.dataset.state = state;
+            }
+
+            function initializeSupabase() {
+                try {
+                    if (typeof supabase !== 'undefined' && supabase.createClient) {
+                        const { createClient } = supabase;
+                        supabaseClient = createClient(supabaseUrl, supabaseKey);
+                        testDatabaseConnection();
+                        console.log('Supabase client initialized successfully');
+                        return supabaseClient;
+                    } else {
+                        throw new Error('Supabase SDK not loaded');
+                    }
+                } catch (error) {
+                    console.error('Error initializing Supabase:', error);
+                    showToast('Database Error', 'Failed to initialize database connection. Please refresh the page.', 'error');
+                    return null;
+                }
+            }
+
+            async function testDatabaseConnection() {
+                try {
+                    const { data, error } = await supabaseClient.from('yoyo_sessions').select('id').limit(1);
+                    if (error && error.code !== '42P01') { throw error; }
+                    showToast('Database Connected', 'YoYo database initialized and ready!', 'success');
+                } catch (error) {
+                    console.error('Database connection test failed:', error);
+                    showToast('Database Warning', 'Database connected but may have issues. Check console for details.', 'warning');
+                }
+            }
+
+            function checkYoYoEvents(elapsedMilliseconds) {
+                if (nextEventIndex >= yoyoScheduleData.length) return;
+                const elapsedSeconds = elapsedMilliseconds / 1000;
+                const nextEvent = yoyoScheduleData[nextEventIndex];
+
+                if (elapsedSeconds >= nextEvent.total_time_seconds) {
+                    const event = nextEvent;
+                    if (event.action === 'start') playSound(startSound, 880);
+                    else if (event.action === 'out' || event.action === 'back') playSound(backSound, 1040);
+                    else if (event.action === 'recovery') playSound(recoverySound, 660);
+
+                    document.getElementById('yoyoLevel').textContent = event.level !== null ? event.level : '--';
+                    document.getElementById('yoyoLeg').textContent = event.leg !== null ? event.leg : '--';
+                    document.getElementById('yoyoDistance').textContent = `${event.total_distance_m}m`;
+
+                    if (!event.is_recovery && event.total_distance_m > 0) {
+                        synchronizeAllPlayerDistances(event.total_distance_m);
+                    }
+                    nextEventIndex++;
+                }
+            }
+
+            function updateNextActionTimer(elapsedMilliseconds) {
+                if (nextEventIndex >= yoyoScheduleData.length) {
+                    document.getElementById('nextAction').textContent = 'Test End';
+                    document.getElementById('timeToNextAction').textContent = '0.0s';
+                    return;
+                }
+                const elapsedSeconds = elapsedMilliseconds / 1000;
+                const nextEvent = yoyoScheduleData[nextEventIndex];
+                let actionText = nextEvent.action.charAt(0).toUpperCase() + nextEvent.action.slice(1);
+                if (actionText === 'Out' || actionText === 'Back') actionText = `Shuttle (${nextEvent.total_distance_m}m)`;
+                document.getElementById('nextAction').textContent = actionText;
+                const timeRemaining = nextEvent.total_time_seconds - elapsedSeconds;
+                document.getElementById('timeToNextAction').textContent = timeRemaining > 0 ? `${timeRemaining.toFixed(1)}s` : '0.0s';
+            }
+
+            function synchronizeAllPlayerDistances(newDistance) {
+                document.querySelectorAll('.athlete-row').forEach(row => {
+                    const athleteId = row.dataset.athleteName;
+                    const checkbox = document.getElementById('checkbox-' + athleteId);
+                    const distanceSelect = document.getElementById('distance-' + athleteId);
+                    const warningState = parseInt(row.getAttribute('data-state'));
+
+                    if (checkbox && checkbox.checked && distanceSelect && warningState !== 2) {
+                        if ([...distanceSelect.options].some(option => option.value == newDistance)) distanceSelect.value = newDistance.toString();
+                        if (activeSessionData) {
+                            const athleteName = athleteId.charAt(0).toUpperCase() + athleteId.slice(1);
+                            updatePlayerState(athleteName, newDistance, warningState, false);
+                        }
+                    }
+                });
+                updateCurrentSessionProgress();
+                updateDropdownOptions();
+            }
+
+            function getMinimumLockedDistance() {
+                const lockedAthletes = document.querySelectorAll('.athlete-row[data-state="2"]');
+                let minDistance = null;
+                lockedAthletes.forEach(row => {
+                    const athleteId = row.dataset.athleteName;
+                    const distanceSelect = document.getElementById('distance-' + athleteId);
+                    if (distanceSelect) {
+                        const currentDistance = parseInt(distanceSelect.value);
+                        if (minDistance === null || currentDistance < minDistance) minDistance = currentDistance;
+                    }
+                });
+                return minDistance;
+            }
+
+            function updateDropdownOptions() {
+                const minLockedDistance = getMinimumLockedDistance();
+                document.querySelectorAll('.athlete-row').forEach(row => {
+                    const athleteId = row.dataset.athleteName;
+                    const distanceSelect = document.getElementById('distance-' + athleteId);
+                    const isLocked = row.getAttribute('data-state') === '2';
+                    if (distanceSelect && !isLocked) {
+                        const options = distanceSelect.querySelectorAll('option');
+                        options.forEach(option => {
+                            const optionValue = parseInt(option.value);
+                            option.style.display = (minLockedDistance !== null && optionValue < minLockedDistance) ? 'none' : '';
+                        });
+                        const currentValue = parseInt(distanceSelect.value);
+                        if (minLockedDistance !== null && currentValue < minLockedDistance) {
+                            const availableOption = Array.from(options).find(opt => parseInt(opt.value) >= minLockedDistance && opt.style.display !== 'none');
+                            if (availableOption) distanceSelect.value = availableOption.value;
+                        }
+                    }
+                });
+            }
+
+            function toggleAthleteWarning(athleteName) {
+                if (!sessionStarted) {
+                    const checkbox = document.getElementById('checkbox-' + athleteName);
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        togglePlayerSelection(athleteName);
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                    return;
+                }
+
+                if (sessionStarted && !yoyoTestStarted) {
+                    alert('Please start the test first before changing athlete warning states.');
+                    return;
+                }
+
+                const checkbox = document.getElementById('checkbox-' + athleteName);
+                if (!checkbox || !checkbox.checked) {
+                    alert('This player is not selected for the current test.');
+                    return;
+                }
+
+                const athleteRow = document.getElementById('athlete-' + athleteName);
+                const distanceSelect = document.getElementById('distance-' + athleteName);
+                const currentState = (parseInt(athleteRow.getAttribute('data-state')) + 1) % 3;
+
+                setAthleteRowState(athleteRow, currentState);
+                distanceSelect.disabled = (currentState === 2);
+
+                updateDropdownOptions();
+                if (activeSessionData) updatePlayerState(athleteName, distanceSelect.value, currentState, currentState === 2);
+                updateCurrentSession();
+                updateCurrentSessionProgress();
+
+                if (currentState === 2) {
+                    addToRankings(athleteName, distanceSelect.value);
+                    updateOtherPlayersDistance(athleteName, distanceSelect.value);
+                    saveAthleteData(athleteName, distanceSelect.value, currentState, currentSession.name, currentSession.testDate)
+                        .then(success => {
+                            if (success) {
+                                const capitalizedAthleteName = athleteName.charAt(0).toUpperCase() + athleteName.slice(1);
+                                showToast('Player Eliminated', `${capitalizedAthleteName} eliminated at ${distanceSelect.value}m - Data saved!`, 'warning');
+                                loadAllTimeBestRankings();
+                            }
+                        });
+                }
+            }
+
+            function updateOtherPlayersDistance(eliminatedPlayerName, eliminatedDistance) {
+                document.querySelectorAll('.athlete-row').forEach(row => {
+                    const athleteId = row.dataset.athleteName;
+                    const checkbox = document.getElementById('checkbox-' + athleteId);
+                    const distanceSelect = document.getElementById('distance-' + athleteId);
+                    const warningState = parseInt(row.getAttribute('data-state'));
+
+                    if (checkbox && checkbox.checked && athleteId !== eliminatedPlayerName && warningState !== 2 && distanceSelect && !distanceSelect.disabled) {
+                        if ([...distanceSelect.options].some(option => option.value == eliminatedDistance)) {
+                            distanceSelect.value = eliminatedDistance;
+                        }
+                        distanceSelect.style.backgroundColor = '#fff3cd';
+                        distanceSelect.style.border = '2px solid #ffc107';
+                        setTimeout(() => {
+                            distanceSelect.style.backgroundColor = '';
+                            distanceSelect.style.border = '';
+                        }, 2000);
+                    }
+                });
+                updateCurrentSessionProgress();
+            }
+
+            async function saveAthleteData(athleteName, distance, warningState, sessionName = '', testDate = null) {
+                try {
+                    const sessionDateInput = document.getElementById('sessionDate');
+                    const selectedDate = testDate || sessionDateInput?.value || new Date().toISOString().split('T')[0];
+                    const { data, error } = await supabaseClient.from('yoyo_sessions').insert({
+                        athlete_name: athleteName.charAt(0).toUpperCase() + athleteName.slice(1),
+                        distance_meters: parseInt(distance),
+                        warning_state: warningState,
+                        session_name: sessionName || currentSession.name || 'Default Session',
+                        test_date: selectedDate
+                    });
+                    if (error) { console.error('Error saving athlete data:', error); return false; }
+                    console.log('Athlete data saved successfully:', data);
+                    return true;
+                } catch (error) { console.error('Error saving athlete data:', error); return false; }
+            }
+
+            async function checkForActiveSession() {
+                try {
+                    const { data, error } = await supabaseClient.from('active_sessions').select('*, session_player_states (*)').in('session_status', ['started', 'test_running']).order('created_at', { ascending: false }).limit(1);
+                    if (error) { console.error('Error checking for active session:', error); return null; }
+                    if (data && data.length > 0) { activeSessionData = data[0]; return activeSessionData; }
+                    return null;
+                } catch (error) { console.error('Error checking for active session:', error); return null; }
+            }
+
+            async function restoreActiveSession(sessionData) {
+                try {
+                    activeSessionData = sessionData;
+                    currentSession.sessionId = sessionData.session_id;
+                    currentSession.name = sessionData.session_name;
+                    currentSession.testDate = sessionData.test_date;
+                    sessionStarted = true;
+                    yoyoTestStarted = sessionData.session_status === 'test_running';
+
+                    if (yoyoTestStarted && sessionData.test_start_time) {
+                        testStartTime = new Date(sessionData.test_start_time);
+                        const elapsedSeconds = (new Date() - testStartTime) / 1000;
+                        nextEventIndex = 0;
+                        for (let i = 0; i < yoyoScheduleData.length; i++) {
+                            if (yoyoScheduleData[i].total_time_seconds > elapsedSeconds) {
+                                nextEventIndex = i;
+                                break;
+                            }
+                            if (i === yoyoScheduleData.length - 1) nextEventIndex = yoyoScheduleData.length;
+                        }
+                        if (nextEventIndex > 0) {
+                            const lastEvent = yoyoScheduleData[nextEventIndex - 1];
+                            document.getElementById('yoyoLevel').textContent = lastEvent.level !== null ? lastEvent.level : '--';
+                            document.getElementById('yoyoLeg').textContent = lastEvent.leg !== null ? lastEvent.leg : '--';
+                            document.getElementById('yoyoDistance').textContent = `${lastEvent.total_distance_m}m`;
+                        }
+                    }
+
+                    const selectedPlayers = sessionData.selected_players || [];
+                    document.querySelectorAll('.athlete-checkbox').forEach(cb => { cb.checked = false; });
+                    selectedPlayers.forEach(playerName => {
+                        const checkbox = document.getElementById('checkbox-' + playerName.toLowerCase());
+                        if (checkbox) checkbox.checked = true;
+                    });
+
+                    if (sessionData.session_player_states) {
+                        sessionData.session_player_states.forEach(playerState => {
+                            const athleteId = playerState.athlete_name.toLowerCase();
+                            const athleteRow = document.getElementById('athlete-' + athleteId);
+                            const distanceSelect = document.getElementById('distance-' + athleteId);
+                            if (athleteRow && distanceSelect) {
+                                setAthleteRowState(athleteRow, playerState.warning_state);
+                                distanceSelect.value = playerState.current_distance.toString();
+                                distanceSelect.disabled = playerState.warning_state === 2;
+                            }
+                        });
+                    }
+
+                    document.querySelectorAll('.athlete-row').forEach(row => {
+                        const athleteId = row.dataset.athleteName;
+                        const checkbox = document.getElementById('checkbox-' + athleteId);
+                        const isUnselected = !(checkbox && checkbox.checked);
+                        row.classList.toggle('opacity-50', isUnselected);
+                        row.classList.toggle('pe-none', isUnselected);
+                    });
+
+                    const baseName = sessionData.session_name.split(' - ')[0];
+                    document.getElementById('sessionName').value = baseName;
+                    document.getElementById('sessionDate').value = sessionData.test_date;
+
+                    updateDropdownOptions();
+                    updateWorkflowUI();
+                    updateCurrentSessionProgress();
+                    setWarningSystemState(yoyoTestStarted);
+                    disablePlayerSelection();
+
+                    if (yoyoTestStarted && testStartTime) {
+                        document.getElementById('timerCard').style.display = 'block';
+                        document.getElementById('testStartTimeDisplay').textContent = testStartTime.toLocaleTimeString();
+                        timerInterval = setInterval(updateTimer, 100);
+                        updateTimer();
+                    }
+
+                    showToast('Session Restored', `Active session "${sessionData.session_name}" restored`, 'success');
+                    return true;
+                } catch (error) {
+                    console.error('Error restoring active session:', error);
+                    showToast('Restore Error', 'Failed to restore active session', 'error');
+                    resetWorkflow();
+                    return false;
+                }
+            }
+
+            async function createDatabaseSession(sessionName, testDate, selectedPlayers) {
+                try {
+                    const { data: sessionData, error: sessionError } = await supabaseClient.from('active_sessions').insert({ session_name: sessionName, test_date: testDate, session_status: 'started', selected_players: selectedPlayers }).select().single();
+                    if (sessionError) throw sessionError;
+                    const playerStates = selectedPlayers.map(playerName => ({ session_id: sessionData.session_id, athlete_name: playerName.charAt(0).toUpperCase() + playerName.slice(1), current_distance: 0, warning_state: 0, is_eliminated: false }));
+                    const { error: statesError } = await supabaseClient.from('session_player_states').insert(playerStates);
+                    if (statesError) throw statesError;
+                    activeSessionData = sessionData;
+                    currentSession.sessionId = sessionData.session_id;
+                    currentSession.name = sessionName;
+                    currentSession.testDate = testDate;
+                    return sessionData;
+                } catch (error) { console.error('Error creating database session:', error); throw error; }
+            }
+
+            async function updateSessionStatus(status, startTime = null) {
+                if (!activeSessionData) return;
+                try {
+                    const updateData = { session_status: status, updated_at: new Date().toISOString() };
+                    if (startTime) updateData.test_start_time = startTime.toISOString();
+                    const { error } = await supabaseClient.from('active_sessions').update(updateData).eq('session_id', activeSessionData.session_id);
+                    if (error) throw error;
+                    activeSessionData.session_status = status;
+                    if (startTime) activeSessionData.test_start_time = startTime.toISOString();
+                } catch (error) { console.error('Error updating session status:', error); throw error; }
+            }
+
+            async function updatePlayerState(athleteName, distance, warningState, isEliminated = false) {
+                if (!activeSessionData) return;
+                const capitalizedAthleteName = athleteName.charAt(0).toUpperCase() + athleteName.slice(1);
+                try {
+                    const updateData = { current_distance: parseInt(distance), warning_state: warningState, is_eliminated: isEliminated, updated_at: new Date().toISOString() };
+                    if (isEliminated) updateData.elimination_time = new Date().toISOString();
+                    const { error } = await supabaseClient.from('session_player_states').update(updateData).eq('session_id', activeSessionData.session_id).eq('athlete_name', capitalizedAthleteName);
+                    if (error) throw error;
+                } catch (error) { console.error('Error updating player state:', error); throw error; }
+            }
+
+            async function completeSession() {
+                if (!activeSessionData) return;
+                try {
+                    await updateSessionStatus('completed');
+                    activeSessionData = null;
+                    currentSession.sessionId = null;
+                } catch (error) { console.error('Error completing session:', error); throw error; }
+            }
+
+            async function deleteActiveSession() {
+                if (!activeSessionData) return;
+                try {
+                    const { error } = await supabaseClient.from('active_sessions').delete().eq('session_id', activeSessionData.session_id);
+                    if (error) throw error;
+                    activeSessionData = null;
+                    currentSession.sessionId = null;
+                } catch (error) { console.error('Error deleting active session:', error); throw error; }
+            }
+
+            function updateCurrentSession() {
+                currentSession.athletes = {};
+                document.querySelectorAll('.athlete-row').forEach(row => {
+                    const athleteId = row.dataset.athleteName;
+                    const athleteName = athleteId.charAt(0).toUpperCase() + athleteId.slice(1);
+                    const distanceSelect = document.getElementById('distance-' + athleteId);
+                    const warningState = parseInt(row.getAttribute('data-state'));
+                    currentSession.athletes[athleteName] = {
+                        distance: distanceSelect ? parseInt(distanceSelect.value) : 0,
+                        warningState: warningState
+                    };
+                });
+            }
+
+            function addToRankings(athleteName, distance) {
+                currentSession.rankings.push({ athlete: athleteName, distance: parseInt(distance), timestamp: new Date().toLocaleTimeString(), position: currentSession.rankings.length + 1 });
+                updateRankingsDisplay();
+            }
+
+            function updateRankingsDisplay() {
+                updateCurrentSessionProgress();
+            }
+
+            async function loadAllTimeBestRankings() {
+                const allTimeBestList = document.getElementById('allTimeBestList');
+                const totalDistancesList = document.getElementById('totalDistancesList');
+                try {
+                    const { data, error } = await supabaseClient.from('yoyo_sessions').select('athlete_name, distance_meters, session_name, test_date').order('distance_meters', { ascending: false });
+                    if (error) throw error;
+                    if (!data || data.length === 0) {
+                        allTimeBestList.innerHTML = '<p class="text-center opacity-50 font-11">No YoYo test data found.</p>';
+                        totalDistancesList.innerHTML = '<p class="text-center opacity-50 font-11">No distance data available.</p>';
+                        return;
+                    }
+
+                    const athleteBests = {};
+                    data.forEach(record => {
+                        if (!athleteBests[record.athlete_name] || record.distance_meters > athleteBests[record.athlete_name].distance_meters) {
+                            athleteBests[record.athlete_name] = record;
+                        }
+                    });
+                    const sortedBests = Object.values(athleteBests).sort((a, b) => b.distance_meters - a.distance_meters).slice(0, 15);
+                    allTimeBestList.innerHTML = sortedBests.length === 0 ? '<p class="text-center opacity-50 font-11">No personal best data available.</p>' : sortedBests.map((record, index) => {
+                        const pos = index + 1;
+                        const medal = pos === 1 ? ['fa-trophy', 'color-yellow-dark'] : pos === 2 ? ['fa-medal', 'color-grey'] : pos === 3 ? ['fa-award', 'color-brown-dark'] : ['fa-circle', 'color-highlight'];
+                        const date = new Date(record.test_date).toLocaleDateString();
+                        return `<div class="d-flex align-items-center mb-2 pb-2 border-bottom border-light"><div class="me-3 text-center" style="min-width: 30px;"><span class="badge bg-highlight color-white font-10">${pos}</span></div><div class="me-3"><i class="fa ${medal[0]} ${medal[1]} fa-lg"></i></div><div class="flex-grow-1"><h6 class="mb-0 font-600">${record.athlete_name}</h6><p class="font-10 opacity-70 mb-0">${record.session_name} - ${date}</p></div><div class="text-end"><h5 class="mb-0 font-700 color-highlight">${record.distance_meters}m</h5></div></div>`;
+                    }).join('');
+
+                    const totalDistances = {};
+                    data.forEach(record => { totalDistances[record.athlete_name] = (totalDistances[record.athlete_name] || 0) + record.distance_meters; });
+                    const sortedTotals = Object.entries(totalDistances).map(([name, total]) => ({ athlete_name: name, total_distance: total })).sort((a, b) => b.total_distance - a.total_distance);
+                    totalDistancesList.innerHTML = sortedTotals.length === 0 ? '<p class="text-center opacity-50 font-11">No total distance data available.</p>' : sortedTotals.map((record, index) => `<div class="d-flex align-items-center mb-2"><div class="me-3" style="min-width: 25px;"><span class="badge bg-green-dark color-white font-9">${index + 1}</span></div><div class="flex-grow-1"><h6 class="font-13 font-600 mb-0">${record.athlete_name}</h6></div><div class="text-end"><span class="font-12 font-700 color-green-dark">${record.total_distance.toLocaleString()}m</span></div></div>`).join('');
+                } catch (error) {
+                    console.error('Error loading historical rankings:', error);
+                    allTimeBestList.innerHTML = '<p class="text-center opacity-50 font-11">Error loading rankings data.</p>';
+                    totalDistancesList.innerHTML = '<p class="text-center opacity-50 font-11">Error loading total distances.</p>';
+                }
+            }
+
+            async function updateCurrentSessionProgress() {
+                const list = document.getElementById('currentSessionList');
+                if (!sessionStarted) { list.innerHTML = '<p class="text-center opacity-50 font-11">No active session. Start a session to see live progress.</p>'; return; }
+                const selectedPlayers = getSelectedPlayers();
+                if (selectedPlayers.length === 0) { list.innerHTML = '<p class="text-center opacity-50 font-11">No players selected for current session.</p>'; return; }
+                let html = '';
+                document.querySelectorAll('.athlete-row').forEach(row => {
+                    const athleteId = row.dataset.athleteName;
+                    if (document.getElementById('checkbox-' + athleteId)?.checked) {
+                        const name = athleteId.charAt(0).toUpperCase() + athleteId.slice(1);
+                        const state = parseInt(row.getAttribute('data-state'));
+                        const dist = document.getElementById('distance-' + athleteId)?.value || '0';
+                        const status = state === 0 ? ['fa-circle', 'color-grey', 'Active', 'grey'] : state === 1 ? ['fa-exclamation-triangle', 'color-orange-dark', 'Warning', 'orange'] : ['fa-times-circle', 'color-red-dark', 'Eliminated', 'red'];
+                        html += `<div class="d-flex align-items-center mb-2 pb-1"><div class="me-3"><i class="fa ${status[0]} ${status[1]}"></i></div><div class="flex-grow-1"><span class="font-11 font-600">${name}</span></div><div class="text-center me-3"><span class="font-10 opacity-70">${dist}m</span></div><div class="text-end"><span class="badge bg-${status[3]}-dark color-white font-9">${status[2]}</span></div></div>`;
+                    }
+                });
+                list.innerHTML = html || '<p class="text-center opacity-50 font-11">No active players in current session.</p>';
+            }
+
+            async function startSession() {
+                if (sessionStarted || activeSessionData) { alert('A session is already active. Please finish the current session before starting a new one.'); return; }
+                const selectedPlayers = getSelectedPlayers();
+                const sessionName = document.getElementById('sessionName').value.trim();
+                const sessionDate = document.getElementById('sessionDate').value;
+                if (selectedPlayers.length === 0) { alert('Please select at least one player before starting the session.'); return; }
+                if (!sessionName) { alert('Please enter a session name before starting.'); return; }
+                if (!sessionDate) { alert('Please select a test date before starting.'); return; }
+
+                try {
+                    const formattedDate = new Date(sessionDate).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    const fullSessionName = `${sessionName} - ${formattedDate}`;
+                    await createDatabaseSession(fullSessionName, sessionDate, selectedPlayers);
+                    sessionStarted = true;
+                    currentSession.name = fullSessionName;
+                    currentSession.testDate = sessionDate;
+
+                    document.querySelectorAll('.athlete-row').forEach(row => {
+                        const athleteId = row.dataset.athleteName;
+                        const checkbox = document.getElementById('checkbox-' + athleteId);
+                        if (checkbox?.checked) {
+                            setAthleteRowState(row, 0);
+                            const distSelect = document.getElementById('distance-' + athleteId);
+                            if (distSelect) { distSelect.disabled = false; distSelect.value = '0'; }
+                            row.classList.remove('opacity-50', 'pe-none');
+                        } else {
+                            row.classList.add('opacity-50', 'pe-none');
+                        }
+                    });
+                    currentSession.rankings = [];
+                    updateRankingsDisplay();
+                    updateDropdownOptions();
+                    updateWorkflowUI();
+                    disablePlayerSelection();
+                    showToast('Session Started', `Session "${currentSession.name}" initialized with ${selectedPlayers.length} players`, 'success');
+                } catch (error) {
+                    console.error('Error starting session:', error);
+                    showToast('Session Error', 'Failed to start session. Please try again.', 'error');
+                }
+            }
+
+            async function startYoYoTest() {
+                if (!sessionStarted) { alert('Please start a session first.'); return; }
+                try {
+                    testStartTime = new Date();
+                    await updateSessionStatus('test_running', testStartTime);
+                    yoyoTestStarted = true;
+                    setWarningSystemState(true);
+                    startTimer();
+                    updateWorkflowUI();
+                    showToast('Test Started', 'YoYo test is now running. Click player names to change warning states.', 'success');
+                } catch (error) {
+                    console.error('Error starting test:', error);
+                    showToast('Test Error', 'Failed to start test. Please try again.', 'error');
+                }
+            }
+
+            async function finishYoYoTest() {
+                if (!sessionStarted) { alert('No session is currently active.'); return; }
+                if (!confirm('Are you sure you want to finish the test?\n\nThis will stop the timer, save all current player data, and end the session.')) return;
+
+                try {
+                    stopTimer(true);
+                    const savePromises = getSelectedPlayers().map(playerName => {
+                        const row = document.getElementById('athlete-' + playerName);
+                        const distSelect = document.getElementById('distance-' + playerName);
+                        const state = parseInt(row.getAttribute('data-state'));
+                        if (distSelect && state !== 2) {
+                            const capName = playerName.charAt(0).toUpperCase() + playerName.slice(1);
+                            return saveAthleteData(capName, distSelect.value, state, currentSession.name, currentSession.testDate);
+                        }
+                        return Promise.resolve();
+                    });
+                    await Promise.all(savePromises);
+                    await completeSession();
+                    showToast('Test Completed', `Session "${currentSession.name}" finished and saved successfully!`, 'success');
+
+                    resetTimer();
+                    yoyoTestStarted = false;
+                    sessionStarted = false;
+                    setWarningSystemState(false);
+                    activeSessionData = null;
+                    currentSession.sessionId = null;
+                    currentSession.name = '';
+                    currentSession.testDate = null;
+                    updateWorkflowUI();
+                    enablePlayerSelection();
+                    loadAllTimeBestRankings();
+                } catch (error) {
+                    console.error('Error finishing test:', error);
+                    showToast('Save Error', 'Error finishing test. Please try again.', 'error');
+                }
+            }
+
+            async function resetWorkflow() {
+                if (confirm('Are you sure you want to reset the workflow?\n\nThis will ABORT any running test and discard unsaved progress for the current session.')) {
+                    try {
+                        if (activeSessionData) await deleteActiveSession();
+                        sessionStarted = false;
+                        yoyoTestStarted = false;
+                        setWarningSystemState(false);
+                        activeSessionData = null;
+                        currentSession.sessionId = null;
+                        currentSession.name = '';
+                        resetTimer();
+
+                        document.querySelectorAll('.athlete-row').forEach(row => {
+                           setAthleteRowState(row, 0);
+                            const distSelect = document.getElementById('distance-' + row.dataset.athleteName);
+                            if (distSelect) { distSelect.disabled = false; distSelect.value = '0'; }
+                        });
+                        deselectAllPlayers();
+                        updateCurrentSessionProgress();
+                        updateDropdownOptions();
+                        updateWorkflowUI();
+                        enablePlayerSelection();
+                        showToast('Workflow Reset', 'Active session aborted. Ready to start a new session.', 'warning');
+                    } catch (error) {
+                        console.error('Error resetting workflow:', error);
+                        showToast('Reset Error', 'Error resetting workflow. Please try again.', 'error');
+                    }
+                }
+            }
+
+            function togglePlayerSelection(athleteName) {
+                const row = document.getElementById('athlete-' + athleteName);
+                const cb = document.getElementById('checkbox-' + athleteName);
+                row.classList.toggle('opacity-50', !cb.checked);
+                row.classList.toggle('pe-none', !cb.checked);
+            }
+
+            function startTimer() {
+                testStartTime = new Date();
+                nextEventIndex = 0;
+                isPaused = false;
+                timeWhenPaused = 0;
+                document.getElementById('testStartTimeDisplay').textContent = testStartTime.toLocaleTimeString();
+                document.getElementById('timerCard').style.display = 'block';
+
+                const btn = document.getElementById('pauseResumeBtn');
+                if (btn) {
+                    btn.classList.remove('bg-green-dark');
+                    btn.classList.add('bg-yellow-dark');
+                    btn.querySelector('i').className = 'fa fa-pause me-2';
+                    const text = btn.querySelector('.btn-text');
+                    if (text) text.textContent = 'Pause';
+                }
+                checkYoYoEvents(0);
+                updateNextActionTimer(0);
+                timerInterval = setInterval(updateTimer, 100);
+            }
+
+            function updateTimer() {
+                if (!testStartTime) return;
+                const elapsed = new Date() - testStartTime;
+                document.getElementById('timerMinutes').textContent = Math.floor(elapsed / 60000).toString().padStart(2, '0');
+                document.getElementById('timerSeconds').textContent = Math.floor((elapsed % 60000) / 1000).toString().padStart(2, '0');
+                document.getElementById('timerMilliseconds').textContent = Math.floor((elapsed % 1000) / 100).toString();
+                checkYoYoEvents(elapsed);
+                updateNextActionTimer(elapsed);
+            }
+
+            function stopTimer(hardStop = false) {
+                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+                [startSound, backSound, recoverySound].forEach(sound => {
+                    if (sound) { sound.pause(); if (hardStop) sound.currentTime = 0; }
+                });
+            }
+
+            function updateWorkflowUI() {
+                const step1 = document.getElementById('step1');
+                const step2 = document.getElementById('step2');
+                const step3 = document.getElementById('step3');
+                const startBtn = document.getElementById('startSessionBtn');
+                const nameInput = document.getElementById('sessionName');
+                const dateInput = document.getElementById('sessionDate');
+                const disable = sessionStarted || yoyoTestStarted;
+                startBtn.classList.toggle('disabled', disable);
+                startBtn.style.opacity = disable ? '0.5' : '1';
+                startBtn.style.pointerEvents = disable ? 'none' : 'auto';
+                nameInput.disabled = disable;
+                dateInput.disabled = disable;
+                step1.style.display = !sessionStarted ? 'block' : 'none';
+                step2.style.display = sessionStarted && !yoyoTestStarted ? 'block' : 'none';
+                step3.style.display = sessionStarted && yoyoTestStarted ? 'block' : 'none';
+            }
+
+            function disablePlayerSelection() {
+                document.querySelectorAll('.athlete-checkbox').forEach(cb => { cb.disabled = true; });
+                const controls = document.querySelector('.selection-controls');
+                if (controls) { controls.style.opacity = '0.5'; controls.style.pointerEvents = 'none'; }
+            }
+
+            function enablePlayerSelection() {
+                document.querySelectorAll('.athlete-checkbox').forEach(cb => { cb.disabled = false; });
+                const controls = document.querySelector('.selection-controls');
+                if (controls) { controls.style.opacity = '1'; controls.style.pointerEvents = 'auto'; }
+            }
+
+            function resetTimer() {
+                stopTimer(true);
+                testStartTime = null;
+                nextEventIndex = 0;
+                isPaused = false;
+                timeWhenPaused = 0;
+                document.getElementById('timerMinutes').textContent = '00';
+                document.getElementById('timerSeconds').textContent = '00';
+                document.getElementById('timerMilliseconds').textContent = '0';
+                document.getElementById('testStartTimeDisplay').textContent = '--:--';
+                document.getElementById('yoyoLevel').textContent = '--';
+                document.getElementById('yoyoLeg').textContent = '--';
+                document.getElementById('yoyoDistance').textContent = '0m';
+                document.getElementById('nextAction').textContent = '--';
+                document.getElementById('timeToNextAction').textContent = '--';
+                document.getElementById('timerCard').style.display = 'none';
+            }
+
+            function togglePauseYoYoTest() {
+                const btn = document.getElementById('pauseResumeBtn');
+                if (!btn) return;
+                const icon = btn.querySelector('i');
+                const text = btn.querySelector('.btn-text');
+                if (!isPaused) {
+                    if (!timerInterval) return;
+                    isPaused = true;
+                    timeWhenPaused = new Date() - testStartTime;
+                    stopTimer();
+                    btn.classList.remove('bg-yellow-dark');
+                    btn.classList.add('bg-green-dark');
+                    icon.className = 'fa fa-play me-2';
+                    if (text) text.textContent = 'Resume';
+                    showToast('Test Paused', 'Timer has been paused.', 'info');
+                } else {
+                    isPaused = false;
+                    testStartTime = new Date() - timeWhenPaused;
+                    timeWhenPaused = 0;
+                    timerInterval = setInterval(updateTimer, 100);
+                    btn.classList.remove('bg-green-dark');
+                    btn.classList.add('bg-yellow-dark');
+                    icon.className = 'fa fa-pause me-2';
+                    if (text) text.textContent = 'Pause';
+                    showToast('Test Resumed', 'Timer is running again.', 'success');
+                }
+            }
+
+            function resetYoYoTest() {
+                if (confirm('Are you sure you want to reset the YoYo test? This will reset the timer and all athlete states but keep the session active.')) {
+                    resetTimer();
+                    yoyoTestStarted = false;
+                    setWarningSystemState(false);
+                    updateWorkflowUI();
+                    document.querySelectorAll('.athlete-row').forEach(row => {
+                        if (row.querySelector('.athlete-checkbox')?.checked) {
+                            setAthleteRowState(row, 0);
+                            const distSelect = document.getElementById('distance-' + row.dataset.athleteName);
+                            if (distSelect) { distSelect.disabled = false; distSelect.value = '0'; }
+                        }
+                    });
+                    currentSession.rankings = [];
+                    updateRankingsDisplay();
+                    updateDropdownOptions();
+                    showToast('Test Reset', 'Timer and player states have been reset.', 'info');
+                }
+            }
+
+            function selectAllPlayers() {
+                document.querySelectorAll('.athlete-checkbox').forEach(cb => { cb.checked = true; });
+                document.querySelectorAll('.athlete-row').forEach(row => {
+                    row.classList.remove('opacity-50', 'pe-none');
+                });
+            }
+
+            function deselectAllPlayers() {
+                document.querySelectorAll('.athlete-checkbox').forEach(cb => { cb.checked = false; });
+                document.querySelectorAll('.athlete-row').forEach(row => {
+                    row.classList.add('opacity-50', 'pe-none');
+                });
+            }
+
+            function getSelectedPlayers() {
+                return Array.from(document.querySelectorAll('.athlete-checkbox:checked')).map(cb => cb.id.replace('checkbox-', ''));
+            }
+
+            function setWarningSystemState(enabled) {
+                const contentDiv = document.querySelector('.card-style .content');
+                if (contentDiv) {
+                    contentDiv.classList.toggle('warning-system-disabled', !enabled);
+                }
+            }
+
+            async function resetDatabase() {
+                if (prompt('This will DELETE ALL data. Type "DELETE" to confirm.') !== 'DELETE') {
+                    alert('Database reset cancelled.');
+                    return;
+                }
+                try {
+                    showToast('Resetting DB...', 'Please wait, deleting all data.', 'info');
+                    await supabaseClient.from('active_sessions').delete().neq('session_id', '00000000-0000-0000-0000-000000000000');
+                    await supabaseClient.from('yoyo_sessions').delete().neq('id', 0);
+                    resetWorkflow();
+                    loadAllTimeBestRankings();
+                    showToast('Database Reset', 'All YoYo test data has been deleted.', 'success');
+                } catch (error) {
+                    console.error('Error resetting database:', error);
+                    showToast('DB Reset Error', 'Could not delete data. Check console.', 'error');
+                }
+            }
+
+            function populateDistanceDropdown(selectElement, schedule) {
+                selectElement.innerHTML = '';
+                [...new Set(schedule.map(item => item.total_distance_m))].sort((a, b) => a - b).forEach(distance => {
+                    const option = document.createElement('option');
+                    option.value = distance;
+                    option.textContent = `${distance}m`;
+                    selectElement.appendChild(option);
+                });
+            }
+
+            // --- INITIALIZATION AND EVENT LISTENERS FOR YOYO PAGE ---
+            async function initializeYoYoPage() {
+                startSound = document.getElementById('startSound');
+                backSound = document.getElementById('backSound');
+                recoverySound = document.getElementById('recoverySound');
+
+                document.querySelectorAll('.distance-dropdown').forEach(dropdown => {
+                    populateDistanceDropdown(dropdown, yoyoScheduleData);
+                    dropdown.addEventListener('change', () => updateCurrentSessionProgress());
+                });
+
+                document.querySelectorAll('.athlete-row').forEach(row => {
+                    const athleteId = row.dataset.athleteName;
+                    setAthleteRowState(row, 0);
+
+                    row.querySelector('.athlete-name').addEventListener('click', () => toggleAthleteWarning(athleteId));
+                    document.getElementById('checkbox-' + athleteId).addEventListener('change', () => togglePlayerSelection(athleteId));
+                    const distanceSelect = document.getElementById('distance-' + athleteId);
+                    if(distanceSelect){
+                        distanceSelect.addEventListener('change', function() {
+                            if (row.getAttribute('data-state') === '2') updateDropdownOptions();
+                            if (activeSessionData) {
+                                const state = parseInt(row.getAttribute('data-state'));
+                                const name = athleteId.charAt(0).toUpperCase() + athleteId.slice(1);
+                                updatePlayerState(name, this.value, state, state === 2);
+                            }
+                        });
+                    }
+                });
+                updateDropdownOptions();
+
+                document.getElementById('selectAllPlayersBtn').addEventListener('click', selectAllPlayers);
+                document.getElementById('deselectAllPlayersBtn').addEventListener('click', deselectAllPlayers);
+                document.getElementById('startSessionBtn').addEventListener('click', startSession);
+                document.getElementById('startTestBtn').addEventListener('click', startYoYoTest);
+                document.getElementById('finishTestBtn').addEventListener('click', finishYoYoTest);
+                document.getElementById('resetWorkflowBtn').addEventListener('click', resetWorkflow);
+                document.getElementById('resetDatabaseBtn').addEventListener('click', resetDatabase);
+                document.getElementById('pauseResumeBtn').addEventListener('click', togglePauseYoYoTest);
+                document.getElementById('resetYoYoTestBtn').addEventListener('click', resetYoYoTest);
+
+                initializeSupabase();
+                loadAllTimeBestRankings();
+                document.getElementById('sessionDate').value = new Date().toISOString().split('T')[0];
+
+                try {
+                    const activeSession = await checkForActiveSession();
+                    if (activeSession) await restoreActiveSession(activeSession);
+                    else {
+                        setWarningSystemState(false);
+                        updateWorkflowUI();
+                        updateCurrentSessionProgress();
+                    }
+                } catch (error) {
+                    console.error('Error during session check:', error);
+                    setWarningSystemState(false);
+                    updateWorkflowUI();
+                    updateCurrentSessionProgress();
+                }
+            }
+            initializeYoYoPage();
+        }
+        // --- End of YoYo Test Page Specific Logic ---
+
+
         //Caching Global Variables
         var i, e, el; //https://www.w3schools.com/js/js_performance.asp
 
@@ -1620,4 +2641,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     init_template();
 });
-
