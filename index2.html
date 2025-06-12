@@ -1,0 +1,1246 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="mobile-web-app-capable" content="yes">
+<title>ELO</title>
+<link rel="stylesheet" type="text/css" href="styles/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="styles/style.css">
+<link rel="stylesheet" type="text/css" href="styles/custom.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="fonts/css/fontawesome-all.min.css">
+<link rel="manifest" href="_manifest.json" data-pwa-version="set_in_manifest_and_pwa_js">
+<link rel="apple-touch-icon" sizes="180x180" href="app/icons/icon-192x192.png">
+
+
+</head>
+
+<body class="theme-light">
+
+<div id="preloader"><div class="spinner-border color-highlight" role="status"></div></div>
+
+<div id="page">
+    <!-- ELO HEADER NAVIGATION -->
+    <div class="header header-fixed" id="elo-page-header">        <div id="elo-header-navigation" class="d-flex justify-content-around align-items-center h-100 px-2">
+            <button class="btn btn-xs bg-highlight text-white rounded-m" data-view="player-selection" title="Players">
+                <i class="fa fa-users"></i>
+            </button>
+            <button class="btn btn-xs border-highlight color-highlight rounded-m" data-view="match-display" title="Matches">
+                <i class="fa fa-gamepad"></i>
+            </button>
+            <button class="btn btn-xs border-highlight color-highlight rounded-m" data-view="leaderboard" title="Rankings">
+                <i class="fa fa-trophy"></i>
+            </button>
+            <button class="btn btn-xs border-highlight color-highlight rounded-m" data-view="live-matches" title="Live">
+                <i class="fa fa-tv"></i>
+            </button>
+            <button class="btn btn-xs border-highlight color-highlight rounded-m" data-view="player-management" title="Manage">
+                <i class="fa fa-cog"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="footer-bar" class="footer-bar-6">
+        <a href="index-components.html" class="active-nav"><i class="fa fa-layer-group"></i><span>Features</span></a>
+        <a href="index-pages.html"><i class="fa fa-file"></i><span>Pages</span></a>
+        <a href="index.html" class="circle-nav"><i class="fa fa-home"></i><span>Welcome</span></a>
+        <a href="index-projects.html"><i class="fa fa-camera"></i><span>Projects</span></a>
+        <a href="#" data-menu="menu-settings"><i class="fa fa-bars"></i><span>Menu</span></a>
+    </div>
+
+    <div class="page-content header-clear-medium">
+
+        <div id="elo-player-selection-view" class="elo-view active">
+            <div class="card card-style">
+                <div class="content">
+                    <h3 class="mb-3"><i class="fa fa-users me-2 color-highlight"></i>Select Players for Matches</h3>
+                    <p class="mb-3 opacity-70">Choose players to participate in the next round of matches. Selected players will be automatically paired for competitive matches.</p>
+                    <div id="player-list-container" class="row g-1"></div>
+                    <div class="text-center mt-4">
+                        <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
+                            <button id="generate-matches-btn" class="btn btn-full btn-l rounded-s bg-highlight shadow-xl text-uppercase font-900" disabled>
+                                <i class="fa fa-play me-2"></i>Generate Matches
+                            </button>
+                            <button id="generate-matches-auto-btn" class="btn btn-full btn-l rounded-s bg-blue-dark shadow-xl text-uppercase font-900" disabled>
+                                <i class="fa fa-magic me-2"></i>Generate Matches (Auto Mode)
+                            </button>
+                        </div>
+                        <p class="font-11 opacity-50 mt-2 mb-0">Select at least 2 players to generate matches</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="elo-match-display-view" class="elo-view">
+            <div class="card card-style">
+                <div class="content">
+                    <h3 class="mb-3"><i class="fa fa-gamepad me-2 color-highlight"></i>Current Matches</h3>
+                    <div id="match-list-container"></div>
+                    <div class="text-center mt-4">
+                        <div class="d-flex gap-2 justify-content-center flex-wrap">
+                            <button id="update-elo-next-round-btn" class="btn btn-m rounded-s bg-green-dark shadow-xl text-uppercase font-900">
+                                <i class="fa fa-forward me-2"></i>Start New Round
+                            </button>
+                            <button id="end-round-btn" class="btn btn-m rounded-s bg-blue-dark shadow-xl text-uppercase font-900">
+                                <i class="fa fa-stop me-2"></i>End Round
+                            </button>
+                            <button id="reset-to-step1-btn-from-matches" class="btn btn-m rounded-s bg-gray-dark shadow-xl text-uppercase font-900">
+                                <i class="fa fa-arrow-left me-2"></i>Back to Selection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="elo-leaderboard-view" class="elo-view">
+            <div class="card card-style">
+                <div class="content">
+                    <div id="active-matchup-display" class="text-center p-3 mb-3 bg-highlight rounded-s">
+                        <h5 class="color-white mb-0">
+                            <i class="fa fa-tv me-2"></i>
+                            <span class="matchup-text">No active match</span>
+                        </h5>
+                    </div>
+                    <h3 class="mb-3"><i class="fa fa-trophy me-2 color-highlight"></i>Current Rankings</h3>
+                    <div id="leaderboard-list-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="elo-live-matches-view" class="elo-view">
+            <div class="live-view-header card card-style mx-0 mt-0 no-shadow">
+                <div class="content py-2">
+                     <h3 class="text-center mb-0"><i class="fa fa-tv me-2 color-highlight"></i>Live & Upcoming</h3>
+                </div>
+            </div>
+            <div class="news-ticker-container-live card card-style mx-0 no-shadow">
+                <div class="content py-1">
+                    <div id="news-ticker-live" class="news-ticker"></div>
+                </div>
+            </div>
+            <div id="live-status-message-large" class="flex-grow-1 d-flex align-items-center justify-content-center large-status-text" style="display: flex;">
+            </div>
+            <div id="live-and-upcoming-cards-wrapper" class="flex-grow-1 d-flex flex-column justify-content-around" style="display: none;"></div>
+        </div>
+
+        <div id="elo-player-management-view" class="elo-view">
+            <div class="card card-style">
+                <div class="content">
+                    <h3 class="mb-3"><i class="fa fa-cog me-2 color-highlight"></i>Player Management</h3>
+                    <div class="mb-4">
+                        <button id="reset-all-elos-btn" class="btn btn-full btn-l rounded-s bg-red-dark shadow-xl text-uppercase font-900">
+                            <i class="fa fa-refresh me-2"></i>Reset All Player ELOs
+                        </button>
+                        <p class="font-11 opacity-50 mt-2 mb-0">This will reset all players to the default ELO rating</p>
+                    </div>
+                    <hr class="divider divider-margins">
+                    <h4 class="mb-3">Reset ELO for Specific Players</h4>
+                    <div id="specific-player-reset-list-container"></div>
+                    <div class="text-center mt-4">
+                        <button id="reset-selected-elos-btn" class="btn btn-full btn-l rounded-s bg-orange-dark shadow-xl text-uppercase font-900" disabled>
+                            <i class="fa fa-refresh me-2"></i>Reset Selected Players
+                        </button>
+                        <p class="font-11 opacity-50 mt-2 mb-0">Select players above to enable this option</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="player-history-overlay" class="fullscreen-overlay">
+        <div class="overlay-container">
+            <div class="overlay-header">
+                <h3 class="color-white mb-0">Player Match History</h3>
+                <button id="player-history-close-btn" class="close-overlay-btn" aria-label="Close">
+                    <i class="fa fa-times color-white"></i>
+                </button>
+            </div>
+            <div id="player-history-content" class="overlay-content"></div>
+        </div>
+    </div>
+
+    <div id="notification-container"></div>
+
+    <div id="menu-settings" class="menu menu-box-bottom menu-box-detached">
+        <div class="menu-title mt-0 pt-0"><h1>Settings</h1><p class="color-highlight">Flexible and Easy to Use</p><a href="#" class="close-menu"><i class="fa fa-times"></i></a></div>
+        <div class="divider divider-margins mb-n2"></div>
+        <div class="content">
+            <div class="list-group list-custom-small">
+                <a href="#" data-toggle-theme data-trigger-switch="switch-dark-mode" class="pb-2 ms-n1">
+                    <i class="fa font-12 fa-moon rounded-s bg-highlight color-white me-3"></i>
+                    <span>Dark Mode</span>
+                    <div class="custom-control scale-switch ios-switch">
+                        <input data-toggle-theme type="checkbox" class="ios-input" id="switch-dark-mode">
+                        <label class="custom-control-label" for="switch-dark-mode"></label>
+                    </div>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                <a href="#" id="toggle-fullscreen-btn" data-trigger-switch="switch-fullscreen-mode" class="pb-2 ms-n1">
+                    <i class="fa font-12 fa-expand rounded-s bg-highlight color-white me-3"></i>
+                    <span>Fullscreen</span>
+                    <div class="custom-control scale-switch ios-switch">
+                        <input type="checkbox" class="ios-input" id="switch-fullscreen-mode">
+                        <label class="custom-control-label" for="switch-fullscreen-mode"></label>
+                    </div>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+<script type="text/javascript" src="scripts/bootstrap.min.js"></script>
+<script type="text/javascript" src="scripts/custom.js"></script>
+
+<script type="text/javascript">
+// --- FIREBASE CONFIGURATION ---
+const firebaseConfig = {
+    apiKey: "AIzaSyDdltMfhAul7RJHofAQfY_Q8pvItjhE4cU", // Replace with your actual API key
+    authDomain: "bucket-1ede1.firebaseapp.com",
+    projectId: "bucket-1ede1",
+    storageBucket: "bucket-1ede1.appspot.com",
+    messagingSenderId: "561684551619",
+    appId: "1:561684551619:web:682f5c45d5fb7621700f76",
+    measurementId: "G-5N6D1WGKCL"
+};
+// ...
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Enable Firestore offline persistence (IndexedDB cache)
+try {
+    db.enablePersistence()
+        .catch((err) => {
+            if (err && err.code === 'failed-precondition') {
+                console.warn('Firestore persistence failed-precondition: perhaps multiple tabs are open. Falling back to in-memory cache.');
+            } else if (err && err.code === 'unimplemented') {
+                console.warn('Firestore persistence is not available in this browser.');
+            } else {
+                console.warn('Enabling Firestore persistence encountered an unknown error:', err);
+            }
+        });
+    console.log('Firestore persistence enabled (or pending).');
+} catch (e) {
+    console.warn('Unable to enable Firestore persistence:', e);
+}
+
+console.log("Firebase Initialized. Project ID:", firebaseConfig.projectId);
+
+document.addEventListener('DOMContentLoaded', function() {
+    // const eloNav = document.getElementById('elo-tab-navigation'); // Old nav
+    const eloPageHeader = document.getElementById('elo-page-header'); // New header
+    if (eloPageHeader) {
+        setTimeout(() => {
+             // The page-content padding is handled by custom.js's header-clear-medium logic.
+             // This CSS variable might be used by ELO-specific CSS for fine-tuning views.
+             document.documentElement.style.setProperty('--elo-nav-height', eloPageHeader.offsetHeight + 'px');
+        }, 150); // Delay to ensure header is rendered and custom.js might have run
+    }
+
+    initializeNavigation();
+    initializeSidebarCollapse(); // Placeholder from original, keep if used
+    initializeFullscreenToggle();
+
+    let players = [];
+    let currentMatchSet = [];
+    const K_FACTOR = 60;
+    const DEFAULT_ELO = 1500;
+    let lastPlayerWhoSatOutId = null;
+    let matchHistory = [];
+    let nextMatchupPlayers = [];
+    let lastKnownLiveMatchIdForBeep = null;
+    let currentRoundDataForLiveView = null;
+    let isInitialLiveCheck = true; // Flag to prevent beep on initial page load for live matches
+    let lastSpokenNextMatchId = null; // Tracks the last upcoming match that was announced aloud
+    let autoModeEnabled = false; // When true, speech announcements for upcoming matches are active
+    let autoSelectedPlayerIds = []; // Stores the player IDs selected at the beginning of auto-mode round
+    const AUTO_START_DELAY_MS = 3000; // 3 seconds
+    const AUTO_DECIDE_DELAY_MS = 5000; // 5 seconds after start to auto-draw if no result
+    let lastLocallyStartedMatchId = null; // Used to suppress duplicate beep from listener
+
+    // --- SESSION ID (Persistent Across Page Reloads) ---
+    // Session ID persisted in Firestore so it is shared across devices/tabs.
+    let SESSION_ID = null;
+    async function ensureGlobalSessionId() {
+        try {
+            const sessionDocRef = db.collection('meta').doc('currentSession');
+            const snap = await sessionDocRef.get();
+            if (snap.exists && snap.data() && snap.data().sessionId) {
+                SESSION_ID = snap.data().sessionId;
+            } else {
+                SESSION_ID = 'sid-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+                await sessionDocRef.set({ sessionId: SESSION_ID, createdAt: new Date() });
+            }
+            console.log('ELO Session ID:', SESSION_ID);
+        } catch (err) {
+            console.error('Failed to retrieve / create session ID:', err);
+            showNotification('Unable to fetch global session. Some features may be unavailable.', 4000, true);
+            // Fallback: create a volatile session but DO NOT store locally (per requirements)
+            SESSION_ID = 'sid-volatile-' + Date.now();
+        }
+    }
+
+    const defaultPlayersData = [
+        { id: "finley", name: "Finley" }, { id: "silas", name: "Silas" },
+        { id: "iraklis", name: "Iraklis" }, { id: "orestis", name: "Orestis" },
+        { id: "august", name: "August" }, { id: "erik", name: "Erik" },
+        { id: "arvid", name: "Arvid" }, { id: "lion", name: "Lion" },
+        { id: "jakob", name: "Jakob" }, { id: "paul", name: "Paul" },
+        { id: "levi", name: "Levi" }, { id: "lasse", name: "Lasse" },
+        { id: "nicklas", name: "Nicklas" }, 
+    ];
+
+    const playerListContainer = document.getElementById('player-list-container');
+    const matchListContainer = document.getElementById('match-list-container');
+    const leaderboardListContainer = document.getElementById('leaderboard-list-container');
+    const activeMatchupDisplay = document.getElementById('active-matchup-display');
+    const specificPlayerResetListContainer = document.getElementById('specific-player-reset-list-container');
+    const generateMatchesBtn = document.getElementById('generate-matches-btn');
+    const generateMatchesAutoBtn = document.getElementById('generate-matches-auto-btn');
+    const endRoundBtn = document.getElementById('end-round-btn');
+    const resetAllElosBtn = document.getElementById('reset-all-elos-btn');
+    const resetSelectedElosBtn = document.getElementById('reset-selected-elos-btn');
+    const resetToStep1BtnFromMatches = document.getElementById('reset-to-step1-btn-from-matches');
+    const updateEloNextRoundBtn = document.getElementById('update-elo-next-round-btn');
+    const playerHistoryOverlay = document.getElementById('player-history-overlay');
+    const playerHistoryContent = document.getElementById('player-history-content');
+    const playerHistoryCloseBtn = document.getElementById('player-history-close-btn');
+
+    // Dynamically created button for bulk player deletion in management view
+    let deleteSelectedPlayersBtn = null;
+
+    function initializeNavigation() {
+        // Target buttons within the new header
+        const navButtons = document.querySelectorAll('#elo-header-navigation .btn');
+        const views = document.querySelectorAll('.elo-view');
+        const footerBar = document.getElementById('footer-bar');
+        const bodyElement = document.body;
+        // const eloPageHeader = document.getElementById('elo-page-header'); // The new header
+        
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                navButtons.forEach(btn => {
+                    btn.classList.remove('bg-highlight', 'text-white');
+                    btn.classList.add('border-highlight', 'color-highlight');
+                });
+                views.forEach(view => view.classList.remove('active'));
+
+                button.classList.remove('border-highlight', 'color-highlight');
+                button.classList.add('bg-highlight', 'text-white');
+                const viewId = 'elo-' + button.getAttribute('data-view') + '-view';
+                const targetView = document.getElementById(viewId);
+                if (targetView) {
+                    targetView.classList.add('active');
+                    if (viewId === 'elo-live-matches-view' || viewId === 'elo-leaderboard-view') {
+                        if (footerBar) footerBar.style.display = 'none';
+                        bodyElement.classList.toggle('live-view-active-body', viewId === 'elo-live-matches-view');
+                        renderLargeLiveAndUpcomingMatches(currentRoundDataForLiveView ? currentRoundDataForLiveView.matches || [] : []);
+                        updateNewsTickerLive();
+                        renderLeaderboard(); // Often good to see rankings with live view
+                    } else {
+                        if (footerBar) footerBar.style.display = '';
+                        bodyElement.classList.remove('live-view-active-body');
+                        if (viewId === 'elo-leaderboard-view') renderLeaderboard();
+                        if (viewId === 'elo-match-display-view') renderMatchList();
+                        if (viewId === 'elo-player-selection-view') renderPlayerList();
+                        if (viewId === 'elo-player-management-view') renderPlayerManagementList();
+                    }
+                }
+            });
+        });
+    }
+
+    function initializeSidebarCollapse() { console.log("Sidebar collapse initialized (placeholder)"); }
+
+    function initializeFullscreenToggle() {
+        const fullscreenButton = document.getElementById('toggle-fullscreen-btn');
+        const fullscreenSwitch = document.getElementById('switch-fullscreen-mode');
+        function updateFullscreenSwitchState() {
+            if (fullscreenSwitch) fullscreenSwitch.checked = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+                const element = document.documentElement;
+                if (element.requestFullscreen) element.requestFullscreen().catch(err => { showNotification(`Fullscreen not supported or denied.`, 2000, false); updateFullscreenSwitchState(); });
+                else if (element.webkitRequestFullscreen) element.webkitRequestFullscreen().catch(err => { showNotification(`Fullscreen not supported or denied.`, 2000, false); updateFullscreenSwitchState(); });
+                else if (element.mozRequestFullScreen) element.mozRequestFullScreen().catch(err => { showNotification(`Fullscreen not supported or denied.`, 2000, false); updateFullscreenSwitchState(); });
+                else if (element.msRequestFullscreen) element.msRequestFullscreen().catch(err => { showNotification(`Fullscreen not supported or denied.`, 2000, false); updateFullscreenSwitchState(); });
+                else { showNotification(`Fullscreen API not supported by this browser.`, 2500, false); updateFullscreenSwitchState(); }
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        }
+        if (fullscreenButton && fullscreenSwitch) {
+            fullscreenButton.addEventListener('click', (e) => { e.preventDefault(); toggleFullScreen(); });
+            ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(event => document.addEventListener(event, updateFullscreenSwitchState));
+            updateFullscreenSwitchState();
+        } else { console.warn("Fullscreen toggle button or switch not found."); }
+    }
+
+    // Audio cue for match start (uses external MP3 instead of oscillator)
+    function playBeep() {
+        try {
+            const snd = new Audio('audio/acce.mp3');
+            snd.volume = 0.8;
+            snd.play().catch(err => { console.warn('Start sound play failed:', err); });
+        } catch (e) {
+            console.warn('Unable to play start sound:', e);
+        }
+    }
+
+    function showNotification(message, duration = 3000, playSound = true) {
+        let c = document.getElementById('notification-container') || (() => { let el = document.createElement('div'); el.id = 'notification-container'; document.body.appendChild(el); return el; })();
+        const n = document.createElement('div');
+        n.className = 'notification card card-style'; n.innerHTML = `<div class="content"><p class="mb-0">${message}</p></div>`;
+        n.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 250px; animation: slideInRight 0.3s ease;';
+        c.appendChild(n);
+        if (playSound) { // This is the 440Hz notification sound
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            if (ctx) {
+                const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.setValueAtTime(440, ctx.currentTime);
+                o.connect(ctx.destination); o.start();
+                setTimeout(() => { o.stop(); ctx.close(); }, 100);
+            }
+        }
+        setTimeout(() => { n.style.animation = 'slideOutRight 0.3s ease'; setTimeout(() => n.remove(), 300); }, duration);
+    }
+
+    // Announces top 3 rankings from Platz 3 to Platz 1 at the end of a round
+    function announceEndOfRoundRankings() {
+        if (!('speechSynthesis' in window)) return;
+        // Skip ranking announcement in Auto-Mode – it will be handled by a separate flow.
+        if (autoModeEnabled) return;
+        const sorted = [...players].sort((a, b) => b.elo - a.elo).slice(0, 3);
+        if (sorted.length === 0) return;
+        const phrases = [];
+        for (let i = sorted.length - 1; i >= 0; i--) {
+            phrases.push(`Platz ${i + 1}. ${sorted[i].name}`);
+        }
+        const finalSpeech = `${phrases.join('. ')}. Next round starts in 5 seconds.`;
+        try {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(finalSpeech);
+            window.speechSynthesis.speak(utterance);
+        } catch (e) { console.warn('Speech synthesis failed:', e); }
+    }
+
+    // === Auto-Mode Round-End Handler ===
+    const ROUND_END_DELAY_MS = 10000; // 10 s wait after round-end sound before generating next matches
+    function handleEndOfRoundAutoMode() {
+        // 1. Play distinctive round-end sound
+        try {
+            const snd = new Audio('audio/20151129_Stronghold Crusader HD Sounds - Jeder weiß wo er steht_Konvertierung__1.m4a');
+            snd.volume = 0.9;
+            snd.play().catch(()=>{});
+        } catch(e) { console.warn('Could not play round-end sound', e); }
+
+        // 2. Schedule next round after the defined delay
+        setTimeout(() => {
+            if (!autoModeEnabled) return; // Auto-mode might have been turned off in the meantime
+
+            // Restore previously selected players or fall back to all
+            if (autoSelectedPlayerIds.length >= 2) {
+                players.forEach(p => p.selected = autoSelectedPlayerIds.includes(p.id));
+            } else {
+                players.forEach(p => p.selected = true);
+            }
+            updateGenerateMatchesButtonState();
+            generateMatches();
+        }, ROUND_END_DELAY_MS);
+    }
+
+    function calculateEloChange(playerElo, opponentElo, score) {
+        const expectedScore = 1 / (1 + Math.pow(10, (opponentElo - playerElo) / 400));
+        return K_FACTOR * (score - expectedScore);
+    }
+
+    function calculateWinRate(stats) {
+        if (!stats || stats.totalMatches === 0) return 0;
+        return ((stats.wins + (stats.draws * 0.5)) / stats.totalMatches) * 100;
+    }
+
+    async function initializePlayers() {
+        console.log("Attempting to initialize players from Firestore...");
+        const playersCollectionRef = db.collection('players');
+        try {
+            const snapshot = await playersCollectionRef.get();
+            if (snapshot.empty) {
+                console.log('No players in Firestore. Creating default set...');
+                const batch = db.batch();
+                defaultPlayersData.forEach(playerData => {
+                    const playerDocRef = playersCollectionRef.doc(playerData.id);
+                    batch.set(playerDocRef, {
+                        name: playerData.name,
+                        elo: DEFAULT_ELO,
+                        stats: {
+                            totalMatches: 0, wins: 0, losses: 0, draws: 0,
+                            winRate: 0, opponentStats: {}, currentWinningStreak: 0, currentLosingStreak: 0
+                        }
+                    });
+                });
+                await batch.commit();
+                console.log('Default players successfully created in Firestore.');
+                const newSnapshot = await playersCollectionRef.get();
+                players = newSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), selected: true }));
+            } else {
+                players = snapshot.docs
+                    .filter(doc => {
+                        const isCJId = doc.id.toLowerCase() === 'cj';
+                        const dataName = (doc.data().name || '').toLowerCase();
+                        const isCJName = dataName === 'cj';
+                        return !(isCJId || isCJName);
+                    })
+                    .map(doc => {
+                        const playerData = doc.data();
+                        if (!playerData.stats) {
+                            playerData.stats = { totalMatches: 0, wins: 0, losses: 0, draws: 0, winRate: 0, opponentStats: {}, currentWinningStreak: 0, currentLosingStreak: 0 };
+                        }
+                        if (playerData.stats.opponentStats === undefined) playerData.stats.opponentStats = {};
+                        if (playerData.stats.currentWinningStreak === undefined) playerData.stats.currentWinningStreak = 0;
+                        if (playerData.stats.currentLosingStreak === undefined) playerData.stats.currentLosingStreak = 0;
+                        return { id: doc.id, ...playerData, selected: true };
+                    });
+                // Optionally attempt to delete CJ from Firestore if present
+                const cjDoc = snapshot.docs.find(d=> {
+                    const isCJId = d.id.toLowerCase() === 'cj';
+                    const n = (d.data().name || '').toLowerCase();
+                    return isCJId || n === 'cj';
+                });
+                if (cjDoc) {
+                    try { await playersCollectionRef.doc(cjDoc.id).delete(); console.log('Removed CJ from Firestore'); } catch(e) { console.warn('Could not delete CJ from Firestore:', e); }
+                }
+                console.log('Players successfully loaded from Firestore.');
+            }
+        } catch (error) {
+            console.error("Error initializing players from Firestore: ", error);
+            showNotification("Unable to load players from server. Please refresh or check connection.", 5000, true);
+            players = []; // Local fallback disabled
+        }
+    }
+
+    async function initializeMatchHistory() {
+        console.log("Initializing match history from Firestore...");
+        try {
+            const snapshot = await db.collection('matchHistory').orderBy('timestamp', 'desc').get();
+            matchHistory = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            console.log(`Loaded ${matchHistory.length} historical matches from Firestore.`);
+        } catch (error) { console.error("Error loading match history from Firestore:", error); matchHistory = []; }
+    }
+
+    function renderPlayerList() {
+        if (!playerListContainer) return;
+        playerListContainer.innerHTML = '';
+        if (!players || players.length === 0) { playerListContainer.innerHTML = '<p class="text-center opacity-50">No player data available.</p>'; return; }
+        players.forEach(player => {
+            const card = document.createElement('div'); card.className = 'col-4 col-sm-3 col-md-2 col-lg-2 mb-1';
+            const borderClass = player.selected ? 'border-green-muted bg-fade-green-light' : 'border-red-muted';
+            card.innerHTML = `<div class="card card-style player-card-compact ${borderClass}" data-player-id="${player.id}" style="cursor: pointer; transition: all 0.2s ease; position: relative;"><div class="content text-center p-2"><h5 class="mb-1">${player.name}</h5><div class="position-absolute" style="top: 6px; right: 6px; width: 20px; height: 20px; border-radius: 50%; background: #4A89DC; color: white; display: ${player.selected ? 'flex' : 'none'}; align-items: center; justify-content: center; font-size: 10px;"><i class="fa fa-check"></i></div></div></div>`;
+            const cardElement = card.querySelector('.card');
+            cardElement.addEventListener('click', () => {
+                player.selected = !player.selected;
+                // Toggle visual styles
+                cardElement.classList.toggle('border-green-muted', player.selected);
+                cardElement.classList.toggle('bg-fade-green-light', player.selected);
+                cardElement.classList.toggle('border-red-muted', !player.selected);
+
+                const checkIconWrapper = cardElement.querySelector('.position-absolute');
+                if (checkIconWrapper) {
+                    checkIconWrapper.style.display = player.selected ? 'flex' : 'none';
+                }
+
+                updateGenerateMatchesButtonState();
+            });
+            playerListContainer.appendChild(card);
+        });
+        updateGenerateMatchesButtonState();
+    }
+
+    function updateGenerateMatchesButtonState() {
+        const disable = players.filter(p => p.selected).length < 2;
+        if (generateMatchesBtn) generateMatchesBtn.disabled = disable;
+        if (generateMatchesAutoBtn) generateMatchesAutoBtn.disabled = disable;
+    }
+
+    function renderLeaderboard() {
+        if (!leaderboardListContainer) return;
+        leaderboardListContainer.innerHTML = '';
+
+        // Determine if a round is currently in progress
+        const liveRoundStatus = currentRoundDataForLiveView ? currentRoundDataForLiveView.roundStatus : null;
+        const roundInProgress = (liveRoundStatus === 'in-progress') || (currentMatchSet && currentMatchSet.some(m => m.status !== 'completed'));
+
+        if (roundInProgress) {
+            leaderboardListContainer.innerHTML = '<p class="text-center opacity-50">Rankings will be available after this round.</p>';
+            return;
+        }
+
+        if (!players || players.length === 0) {
+            leaderboardListContainer.innerHTML = '<p class="text-center opacity-50">Leaderboard data unavailable.</p>';
+            return;
+        }
+
+        const sortedPlayers = [...players].sort((a, b) => b.elo - a.elo);
+        sortedPlayers.forEach((player, index) => {
+            const isNextMatchupPlayer = nextMatchupPlayers.includes(player.id);
+            const card = document.createElement('div');
+            card.className = `card card-style mb-2 ${isNextMatchupPlayer ? 'border-start border-4 border-highlight bg-fade-highlight-light' : ''}`;
+            card.innerHTML = `<div class="content"><div class="d-flex align-items-center"><div class="me-3"><div class="badge ${index === 0 ? 'bg-warning text-dark' : index === 1 ? 'bg-secondary' : index === 2 ? 'bg-info' : 'bg-dark'} rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: bold;">${index + 1}</div></div><div class="flex-grow-1"><h5 class="mb-0">${player.name}</h5><p class="font-11 opacity-70 mb-0">${player.stats ? `${player.stats.wins}W-${player.stats.losses}L-${player.stats.draws}D` : '0W-0L-0D'}</p></div><div class="text-end"><h4 class="mb-0 color-highlight">${Math.round(player.elo)}</h4><p class="font-10 opacity-50 mb-0">ELO Rating</p></div></div></div>`;
+            card.classList.add('leaderboard-grid-item');
+            leaderboardListContainer.appendChild(card);
+            const delay = (sortedPlayers.length - index) * 0.15; // lower ranks first
+            card.classList.add('leaderboard-card-animate');
+            card.style.animationDelay = `${delay}s`;
+        });
+        leaderboardListContainer.classList.add('leaderboard-grid');
+    }
+
+    function renderMatchList() {
+        if (!matchListContainer) return;
+        matchListContainer.innerHTML = '';
+        if (currentMatchSet.length === 0) {
+            matchListContainer.innerHTML = '<p class="text-center opacity-50">No active matches. Generate matches to begin.</p>';
+            if (endRoundBtn) endRoundBtn.style.display = 'none';
+            if (resetToStep1BtnFromMatches) resetToStep1BtnFromMatches.style.display = 'none';
+            if (updateEloNextRoundBtn) updateEloNextRoundBtn.style.display = 'none';
+            return;
+        }
+        if (endRoundBtn) endRoundBtn.style.display = 'inline-block';
+        if (resetToStep1BtnFromMatches) resetToStep1BtnFromMatches.style.display = 'inline-block';
+        if (updateEloNextRoundBtn) updateEloNextRoundBtn.style.display = 'inline-block';
+
+        currentMatchSet.forEach((match, index) => {
+            const p1 = players.find(p => p.id === match.player1Id); const p2 = players.find(p => p.id === match.player2Id); if (!p1 || !p2) return;
+            const card = document.createElement('div'); card.className = `card card-style mb-3 match-card ${match.status === 'completed' ? 'completed' : (match.status === 'live' ? 'live' : 'active')}`; card.dataset.matchId = match.matchId;
+            if (match.status === 'active' || match.status === 'live') {
+                const p1WE = Math.round(calculateEloChange(p1.elo, p2.elo, 1)), p1LE = Math.round(calculateEloChange(p1.elo, p2.elo, 0)), p1DE = Math.round(calculateEloChange(p1.elo, p2.elo, 0.5));
+                const p1WR = Math.round(calculateWinRate(p1.stats));
+                // Head-to-head (H2H) win-rate against current opponent
+                let p1H2HWR = '–';
+                if (p1.stats && p1.stats.opponentStats && p1.stats.opponentStats[p2.id]) {
+                    const h = p1.stats.opponentStats[p2.id];
+                    const hGames = h.wins + h.losses + h.draws;
+                    if (hGames > 0) p1H2HWR = Math.round(((h.wins + h.draws * 0.5) / hGames) * 100);
+                }
+                const p2WE = Math.round(calculateEloChange(p2.elo, p1.elo, 1)), p2LE = Math.round(calculateEloChange(p2.elo, p1.elo, 0)), p2DE = Math.round(calculateEloChange(p2.elo, p1.elo, 0.5));
+                const p2WR = Math.round(calculateWinRate(p2.stats));
+                let p2H2HWR = '–';
+                if (p2.stats && p2.stats.opponentStats && p2.stats.opponentStats[p1.id]) {
+                    const h = p2.stats.opponentStats[p1.id];
+                    const hGames = h.wins + h.losses + h.draws;
+                    if (hGames > 0) p2H2HWR = Math.round(((h.wins + h.draws * 0.5) / hGames) * 100);
+                }
+                let startBtnHTML = match.status === 'active' ? `<button class="btn btn-sm bg-blue-dark color-white start-match-btn">START</button>` : `<button class="btn btn-sm bg-red-dark color-white" disabled>LIVE</button>`;
+                card.innerHTML = `<div class="content"><h5 class="text-center mb-3">Match ${index + 1} ${match.status === 'live' ? '<span class="badge bg-red-dark ms-2">LIVE</span>' : ''}</h5><div class="row mb-2"><div class="col-6"><div class="border border-1 rounded-m p-3 text-center" style="cursor: pointer; transition: all 0.2s ease; background-color: #fff; height: 100%;" data-player-id="${p1.id}"><div class="fw-bold mb-2">${p1.name}</div><div class="opacity-70 mb-1" style="font-size: 13px;">ELO: ${Math.round(p1.elo)}</div><div class="opacity-70 mb-1" style="font-size: 13px;">WR (overall): ${p1WR}%</div><div class="opacity-70 mb-2" style="font-size: 13px;">H2H: ${p1H2HWR}%</div><div style="font-size: 12px; border-top: 1px dashed #dee2e6; padding-top: 8px;"><div class="text-success mb-1">Win: ${p1WE >= 0 ? '+' : ''}${p1WE}</div><div class="text-danger mb-1">Loss: ${p1LE >= 0 ? '+' : ''}${p1LE}</div><div class="text-secondary">Draw: ${p1DE >= 0 ? '+' : ''}${p1DE}</div></div></div></div><div class="col-6"><div class="border border-1 rounded-m p-3 text-center" style="cursor: pointer; transition: all 0.2s ease; background-color: #fff; height: 100%;" data-player-id="${p2.id}"><div class="fw-bold mb-2">${p2.name}</div><div class="opacity-70 mb-1" style="font-size: 13px;">ELO: ${Math.round(p2.elo)}</div><div class="opacity-70 mb-1" style="font-size: 13px;">WR (overall): ${p2WR}%</div><div class="opacity-70 mb-2" style="font-size: 13px;">H2H: ${p2H2HWR}%</div><div style="font-size: 12px; border-top: 1px dashed #dee2e6; padding-top: 8px;"><div class="text-success mb-1">Win: ${p2WE >= 0 ? '+' : ''}${p2WE}</div><div class="text-danger mb-1">Loss: ${p2LE >= 0 ? '+' : ''}${p2LE}</div><div class="text-secondary">Draw: ${p2DE >= 0 ? '+' : ''}${p2DE}</div></div></div></div></div><div class="match-actions-container text-center mt-2"><button class="btn btn-sm bg-gray-dark color-white draw-match-btn me-2" ${match.status === 'live' ? 'disabled' : ''}>DRAW</button>${startBtnHTML}</div></div>`;
+            } else {
+                let outcome = match.result === 'player1Wins' ? `${p1.name} Wins!` : match.result === 'player2Wins' ? `${p2.name} Wins!` : `Match Drawn!`;
+                card.innerHTML = `<div class="content"><h5 class="text-center mb-3">Match ${index + 1}</h5><div class="match-result-display text-center"><h4 class="color-highlight">${outcome}</h4><p class="opacity-70">${p1.name} vs ${p2.name}</p></div></div>`;
+            }
+            matchListContainer.appendChild(card);
+            if (match.status === 'active' || match.status === 'live') {
+                card.querySelectorAll('[data-player-id]').forEach(a => a.addEventListener('click', () => handleResultInput(match.matchId, a.dataset.playerId)));
+                const drawBtn = card.querySelector('.draw-match-btn'); if (drawBtn) drawBtn.addEventListener('click', () => handleResultInput(match.matchId, 'draw'));
+                const startBtn = card.querySelector('.start-match-btn'); if (startBtn) startBtn.addEventListener('click', () => handleStartMatch(match.matchId));
+            }
+        });
+    }
+
+    async function generateMatches() {
+        let selP = players.filter(p => p.selected);
+        // Capture current selection for auto-mode continuity
+        if (autoModeEnabled) {
+            autoSelectedPlayerIds = selP.map(p => p.id);
+        }
+        let localCMS = [];
+        if (selP.length < 2) { showNotification("Select at least 2 players.", 3000, false); return; }
+        currentMatchSet = []; lastKnownLiveMatchIdForBeep = null; isInitialLiveCheck = true; // Reset for new round generation
+        for (let i = selP.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [selP[i], selP[j]] = [selP[j], selP[i]]; }
+        if (selP.length % 2 !== 0) {
+            let pSO; let candSO = [...selP];
+            if (lastPlayerWhoSatOutId) { const potCand = candSO.filter(p => p.id !== lastPlayerWhoSatOutId); if (potCand.length > 0) candSO = potCand; }
+            for (let i = candSO.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [candSO[i], candSO[j]] = [candSO[j], candSO[i]]; }
+            pSO = candSO.pop(); showNotification(`${pSO.name} sits out this round.`, 3000, false); lastPlayerWhoSatOutId = pSO.id; selP = selP.filter(p => p.id !== pSO.id);
+        } else { lastPlayerWhoSatOutId = null; }
+        for (let i = 0; i < selP.length; i += 2) {
+            const p1 = selP[i], p2 = selP[i + 1];
+            localCMS.push({ matchNumber: localCMS.length + 1, matchId: `m${Date.now()}${localCMS.length + 1}`, player1Id: p1.id, player1Name: p1.name, player1Elo: p1.elo, player2Id: p2.id, player2Name: p2.name, player2Elo: p2.elo, result: 'pending', status: 'active' });
+        }
+        currentMatchSet = localCMS;
+        try { await db.collection('activeRoundState').doc('details').set({ sessionId: SESSION_ID, roundId: new Date().toISOString(), matches: currentMatchSet, roundStatus: 'in-progress' }); console.log("Match set written to Firestore for live view."); }
+        catch (error) { console.error("Error writing match set to Firestore: ", error); showNotification("Could not initialize live match view. Check console.", 3000, false); }
+        renderMatchList(); document.querySelectorAll('#elo-header-navigation .btn').forEach(b => { b.classList.remove('bg-highlight', 'text-white'); b.classList.add('border-highlight', 'color-highlight'); }); document.querySelectorAll('.elo-view').forEach(v => v.classList.remove('active'));
+        document.querySelector('#elo-header-navigation [data-view="match-display"]').classList.add('active'); document.getElementById('elo-match-display-view').classList.add('active');
+    }
+
+    async function handleStartMatch(matchId, isAuto = false) {
+        const mTS = currentMatchSet.find(m => m.matchId === matchId); if (!mTS || mTS.status !== 'active') { console.warn("Match cannot be started:", matchId); return; }
+        currentMatchSet.forEach(m => { if (m.status === 'live' && m.matchId !== matchId) m.status = 'active'; }); mTS.status = 'live';
+        try {
+            await db.collection('activeRoundState').doc('details').update({ matches: currentMatchSet });
+            const p1 = players.find(p => p.id === mTS.player1Id), p2 = players.find(p => p.id === mTS.player2Id);
+            // Play start sound if this wasn't triggered by auto-mode (auto-mode already played it)
+            if (!isAuto) {
+                playBeep();
+            }
+            // Mark as locally started to avoid duplicate beep from listener
+            lastLocallyStartedMatchId = matchId;
+            // Notification sound is disabled; live listener will handle the primary "live" beep.
+            showNotification(`Match ${p1.name} vs ${p2.name} is now LIVE!`, 3000, false);
+            renderMatchList();
+
+            // If auto mode triggered the start (or auto mode currently enabled), schedule auto-draw decision
+            if ((isAuto || autoModeEnabled)) {
+                setTimeout(() => {
+                    const stillLive = currentMatchSet.find(m => m.matchId === matchId && m.status === 'live');
+                    if (stillLive) {
+                        // Auto-draw if user hasn't decided result
+                        handleResultInput(matchId, 'draw');
+                    }
+                }, AUTO_DECIDE_DELAY_MS);
+            }
+        } catch (error) { console.error(`Error setting match ${matchId} to live:`, error); showNotification("Error starting match.", 3000, false); mTS.status = 'active'; }
+    }
+
+    async function handleResultInput(matchId, outcome) {
+        const mIdx = currentMatchSet.findIndex(m => m.matchId === matchId);
+        if (mIdx !== -1 && (currentMatchSet[mIdx].status === 'active' || currentMatchSet[mIdx].status === 'live')) {
+            const match = currentMatchSet[mIdx];
+            if (outcome === match.player1Id) match.result = 'player1Wins'; else if (outcome === match.player2Id) match.result = 'player2Wins'; else if (outcome === 'draw') match.result = 'draw'; else return;
+            match.status = 'completed'; if (lastKnownLiveMatchIdForBeep === match.matchId) lastKnownLiveMatchIdForBeep = null;
+            try { await db.collection('matchHistory').add({ ...match, timestamp: new Date(), eloChange: null }); } catch (e) { console.error("Error storing match history", e); }
+            await processSingleMatchEloUpdate(match);
+            try { await db.collection('activeRoundState').doc('details').update({ matches: currentMatchSet }); } catch (e) { console.error("Error updating match in Firestore", e); }
+            renderMatchList(); window.scrollBy({ top: 75, left: 0, behavior: 'smooth' }); renderLeaderboard();
+            if (currentMatchSet.every(m => m.status === 'completed')) { showNotification("Round complete!", 3000, true); setTimeout(async () => { await markRoundAsCompleted(); }, 1500); }
+        }
+    }
+
+    async function processSingleMatchEloUpdate(match) {
+        if (match.status !== 'completed' || match.result === 'pending') return false;
+        const p1 = players.find(p => p.id === match.player1Id); const p2 = players.find(p => p.id === match.player2Id);
+        if (!p1 || !p2) { console.error("Player data missing:", match); return false; }
+
+        let p1Score, p2Score;
+        if (match.result === 'player1Wins') { p1Score = 1; p2Score = 0; }
+        else if (match.result === 'player2Wins') { p1Score = 0; p2Score = 1; }
+        else { p1Score = 0.5; p2Score = 0.5; } // Draw
+
+        const eloChangeP1 = calculateEloChange(p1.elo, p2.elo, p1Score);
+        const eloChangeP2 = calculateEloChange(p2.elo, p1.elo, p2Score);
+        const newP1Elo = p1.elo + eloChangeP1;
+        const newP2Elo = p2.elo + eloChangeP2;
+
+        p1.stats = p1.stats || { totalMatches: 0, wins: 0, losses: 0, draws: 0, winRate: 0, opponentStats: {}, currentWinningStreak: 0, currentLosingStreak: 0 };
+        p2.stats = p2.stats || { totalMatches: 0, wins: 0, losses: 0, draws: 0, winRate: 0, opponentStats: {}, currentWinningStreak: 0, currentLosingStreak: 0 };
+        p1.stats.opponentStats = p1.stats.opponentStats || {};
+        p2.stats.opponentStats = p2.stats.opponentStats || {};
+        p1.stats.opponentStats[p2.id] = p1.stats.opponentStats[p2.id] || { wins: 0, losses: 0, draws: 0 };
+        p2.stats.opponentStats[p1.id] = p2.stats.opponentStats[p1.id] || { wins: 0, losses: 0, draws: 0 };
+
+        p1.stats.totalMatches++; p2.stats.totalMatches++;
+
+        if (p1Score === 1) { // P1 wins
+            p1.stats.wins++; p2.stats.losses++;
+            p1.stats.currentWinningStreak = (p1.stats.currentWinningStreak || 0) + 1;
+            p1.stats.currentLosingStreak = 0;
+            p2.stats.currentWinningStreak = 0;
+            p2.stats.currentLosingStreak = (p2.stats.currentLosingStreak || 0) + 1;
+            p1.stats.opponentStats[p2.id].wins++;
+            p2.stats.opponentStats[p1.id].losses++;
+        } else if (p1Score === 0) { // P2 wins
+            p1.stats.losses++; p2.stats.wins++;
+            p1.stats.currentWinningStreak = 0;
+            p1.stats.currentLosingStreak = (p1.stats.currentLosingStreak || 0) + 1;
+            p2.stats.currentWinningStreak = (p2.stats.currentWinningStreak || 0) + 1;
+            p2.stats.currentLosingStreak = 0;
+            p1.stats.opponentStats[p2.id].losses++;
+            p2.stats.opponentStats[p1.id].wins++;
+        } else { // Draw
+            p1.stats.draws++; p2.stats.draws++;
+            p1.stats.currentWinningStreak = 0;
+            p2.stats.currentWinningStreak = 0;
+            p1.stats.currentLosingStreak = 0;
+            p2.stats.currentLosingStreak = 0;
+            p1.stats.opponentStats[p2.id].draws++;
+            p2.stats.opponentStats[p1.id].draws++;
+        }
+
+        p1.stats.winRate = calculateWinRate(p1.stats);
+        p2.stats.winRate = calculateWinRate(p2.stats);
+
+        const batch = db.batch();
+        batch.update(db.collection('players').doc(p1.id), { elo: newP1Elo, stats: p1.stats });
+        batch.update(db.collection('players').doc(p2.id), { elo: newP2Elo, stats: p2.stats });
+
+        try {
+            await batch.commit();
+            p1.elo = newP1Elo; p2.elo = newP2Elo; // Update local player objects
+            showNotification(`ELO updated: ${p1.name} ${eloChangeP1 >= 0 ? '+' : ''}${Math.round(eloChangeP1)}, ${p2.name} ${eloChangeP2 >= 0 ? '+' : ''}${Math.round(eloChangeP2)}`, 3000, false);
+
+            // Play special sound if a player reaches a 3-game winning streak
+            const playStreakSound = (file) => {
+                const a = new Audio(`audio/${file}`);
+                a.volume = 0.9;
+                a.play().catch(()=>{});
+            };
+            const winnerStreak = p1Score === 1 ? p1.stats.currentWinningStreak : (p2Score === 1 ? p2.stats.currentWinningStreak : 0);
+            if (winnerStreak === 3) {
+                playStreakSound('unstoppable.ogg');
+            } else if (winnerStreak === 5) {
+                playStreakSound('dominating.ogg');
+            } else if (winnerStreak === 7) {
+                playStreakSound('legendary.ogg');
+            }
+
+            // Sound when a winning streak is broken
+            const playBreakSound = (file) => playStreakSound(file);
+            if (p1Score === 0) {
+                if (p1.stats.currentWinningStreak >= 7) {
+                    playBreakSound('20151129_Stronghold Crusader HD Sounds - Niedergeschlagen_Konvertierung__1.m4a');
+                } else if (p1.stats.currentWinningStreak >= 5) {
+                    playBreakSound('shutdown.ogg');
+                }
+            } else if (p2Score === 0) {
+                if (p2.stats.currentWinningStreak >= 7) {
+                    playBreakSound('20151129_Stronghold Crusader HD Sounds - Niedergeschlagen_Konvertierung__1.m4a');
+                } else if (p2.stats.currentWinningStreak >= 5) {
+                    playBreakSound('shutdown.ogg');
+                }
+            }
+
+            // Losing streak sound
+            const loserStreak = p1Score === 0 ? p1.stats.currentLosingStreak : (p2Score === 0 ? p2.stats.currentLosingStreak : 0);
+            if (loserStreak === 5) {
+                playStreakSound('20151018_Stronghold Crusader HD Sounds - Erniedrigt_Konvertierung__1.m4a');
+            }
+
+            return true;
+        } catch (error) { console.error(`Error committing ELO updates for match ${match.matchId}:`, error); return false; }
+    }
+
+    async function markRoundAsCompleted() {
+        try {
+            await db.collection('activeRoundState').doc('details').update({ roundStatus: 'completed' });
+            lastKnownLiveMatchIdForBeep = null;
+            activateLeaderboardView();
+            if (autoModeEnabled) {
+                handleEndOfRoundAutoMode();
+            } else {
+                announceEndOfRoundRankings();
+            }
+            return true;
+        } catch (error) {
+            console.error("Error marking round as completed:", error);
+            return false;
+        }
+    }
+
+    function activateLeaderboardView() {
+        // Simulate click on leaderboard nav button to leverage existing navigation logic
+        const lbBtn = document.querySelector('#elo-header-navigation .btn[data-view="leaderboard"]');
+        if (lbBtn) {
+            lbBtn.click();
+        } else {
+            // Fallback: manually activate view
+            const navButtons = document.querySelectorAll('#elo-header-navigation .btn');
+            const views = document.querySelectorAll('.elo-view');
+            navButtons.forEach(btn => {
+                btn.classList.remove('bg-highlight', 'text-white');
+                btn.classList.add('border-highlight', 'color-highlight');
+            });
+            views.forEach(v => v.classList.remove('active'));
+            const targetView = document.getElementById('elo-leaderboard-view');
+            if (targetView) targetView.classList.add('active');
+        }
+    }
+
+    function renderPlayerManagementList() {
+        if (!specificPlayerResetListContainer) return;
+        specificPlayerResetListContainer.innerHTML = '';
+        if (!players || players.length === 0) { specificPlayerResetListContainer.innerHTML = '<p class="text-center opacity-50">No player data.</p>'; return; }
+        const pM = players.map(p => ({ ...p, selectedForReset: false })).sort((a, b) => a.name.localeCompare(b.name));
+        pM.forEach(p => {
+            const card = document.createElement('div'); card.className = 'card card-style mb-2';
+            card.innerHTML = `<div class="content"><div class="d-flex align-items-center"><div class="flex-grow-1"><h5 class="mb-0">${p.name}</h5><p class="font-11 opacity-70 mb-0">ELO: ${Math.round(p.elo)}</p></div><div class="text-end d-flex align-items-center gap-1"><input type="checkbox" class="player-reset-checkbox me-2" data-player-id="${p.id}"><button class="btn btn-sm bg-blue-dark color-white verlauf-btn" data-player-id="${p.id}">History</button><button class="btn btn-sm bg-red-dark color-white delete-single-player-btn" data-player-id="${p.id}"><i class="fa fa-trash"></i></button></div></div></div>`;
+            card.querySelector('.player-reset-checkbox').addEventListener('change', updateResetSelectedButtonState);
+            card.querySelector('.verlauf-btn').addEventListener('click', () => showPlayerHistory(p.id));
+            card.querySelector('.delete-single-player-btn').addEventListener('click', () => deletePlayers([p.id]));
+            specificPlayerResetListContainer.appendChild(card);
+        });
+        // Ensure delete button exists below list
+        if (!deleteSelectedPlayersBtn) {
+            deleteSelectedPlayersBtn = document.createElement('button');
+            deleteSelectedPlayersBtn.id = 'delete-selected-players-btn';
+            deleteSelectedPlayersBtn.className = 'btn btn-full btn-l rounded-s bg-red-dark shadow-xl text-uppercase font-900 mt-3';
+            deleteSelectedPlayersBtn.disabled = true;
+            deleteSelectedPlayersBtn.innerHTML = '<i class="fa fa-trash me-2"></i>Delete Selected Players';
+            specificPlayerResetListContainer.parentElement.appendChild(deleteSelectedPlayersBtn);
+            deleteSelectedPlayersBtn.addEventListener('click', () => {
+                const selIds = Array.from(specificPlayerResetListContainer.querySelectorAll('.player-reset-checkbox:checked')).map(cb => cb.dataset.playerId);
+                deletePlayers(selIds);
+            });
+        }
+        updateResetSelectedButtonState();
+    }
+
+    function updateResetSelectedButtonState() {
+        if (!resetSelectedElosBtn || !specificPlayerResetListContainer) return;
+        const numChecked = specificPlayerResetListContainer.querySelectorAll('.player-reset-checkbox:checked').length;
+        resetSelectedElosBtn.disabled = numChecked === 0;
+        if (deleteSelectedPlayersBtn) deleteSelectedPlayersBtn.disabled = numChecked === 0;
+    }
+
+    async function deletePlayers(playerIds) {
+        if (!playerIds || playerIds.length === 0) return;
+        if (!confirm(`Permanently delete ${playerIds.length} player(s)? This cannot be undone.`)) return;
+        const batch = db.batch();
+        playerIds.forEach(pid => {
+            batch.delete(db.collection('players').doc(pid));
+        });
+        try {
+            await batch.commit();
+            // Remove from local array
+            players = players.filter(p => !playerIds.includes(p.id));
+            showNotification('Player(s) deleted.', 3000, true);
+            renderPlayerList();
+            renderLeaderboard();
+            renderPlayerManagementList();
+        } catch (e) {
+            console.error('Error deleting players', e);
+            showNotification('Error deleting players.', 3000, false);
+        }
+    }
+
+    let liveRoundUnsubscribe = null;
+    function setupLiveMatchesListener() {
+        if (liveRoundUnsubscribe) liveRoundUnsubscribe();
+        isInitialLiveCheck = true; // Reset for new listener setup or re-setup
+        liveRoundUnsubscribe = db.collection('activeRoundState').doc('details')
+            .onSnapshot(async (doc) => {
+                currentRoundDataForLiveView = doc.exists ? doc.data() : { matches: [], roundStatus: 'unknown' };
+                const matches = currentRoundDataForLiveView.matches || [];
+                const liveMatch = matches.find(m => m.status === 'live');
+
+                if (liveMatch) {
+                    if (liveMatch.matchId !== lastKnownLiveMatchIdForBeep) {
+                        // Skip beep if we just started this match locally
+                        const shouldPlayBeep = !(lastLocallyStartedMatchId && liveMatch.matchId === lastLocallyStartedMatchId);
+                        if (!isInitialLiveCheck && shouldPlayBeep) {
+                            playBeep();
+                        }
+                        lastKnownLiveMatchIdForBeep = liveMatch.matchId;
+                        if (lastLocallyStartedMatchId === liveMatch.matchId) {
+                            lastLocallyStartedMatchId = null; // reset
+                        }
+                    }
+                } else if (lastKnownLiveMatchIdForBeep) { // If there was a live match, but now there isn't
+                    lastKnownLiveMatchIdForBeep = null;
+                }
+
+                isInitialLiveCheck = false; // Set to false after the first run of this snapshot callback
+
+                if (document.getElementById('elo-live-matches-view').classList.contains('active')) {
+                    renderLargeLiveAndUpcomingMatches(matches);
+                    updateNewsTickerLive();
+                }
+                updateActiveMatchupDisplay(liveMatch || (matches.filter(m=>m.status === 'active').length > 0 ? matches.filter(m=>m.status === 'active')[0] : null));
+                // Re-render leaderboard so that it appears immediately once the round ends (especially after the round-end sound)
+                renderLeaderboard();
+
+                // Keep local currentMatchSet in sync so the Match Display view reflects remote state even
+                // when this tab did not generate the matches.
+                currentMatchSet = matches;
+
+                // If the Match Display view is visible, re-render the list now.
+                if (document.getElementById('elo-match-display-view').classList.contains('active')) {
+                    renderMatchList();
+                }
+            }, (error) => {
+                console.error("Error listening to live matches:", error);
+                currentRoundDataForLiveView = { matches: [], roundStatus: 'error' };
+                if (document.getElementById('elo-live-matches-view').classList.contains('active')) {
+                    renderLargeLiveAndUpcomingMatches([]); updateNewsTickerLive();
+                }
+                lastKnownLiveMatchIdForBeep = null;
+                isInitialLiveCheck = false; // Also set to false on error
+            });
+    }
+
+    function renderLargeLiveAndUpcomingMatches(allMatches) {
+        const liveWrapper = document.getElementById('live-and-upcoming-cards-wrapper');
+        const liveStatusMessageLarge = document.getElementById('live-status-message-large');
+        const newsTickerContainer = document.querySelector('#elo-live-matches-view .news-ticker-container-live');
+
+        if (!liveWrapper || !liveStatusMessageLarge || !newsTickerContainer) return;
+        liveWrapper.innerHTML = '';
+        newsTickerContainer.style.display = 'block';
+
+        let displayMatches = [];
+        const liveMatch = allMatches.find(m => m.status === 'live');
+        if (liveMatch) displayMatches.push({ ...liveMatch, cardType: 'live' });
+        const upcoming = allMatches.filter(m => m.status === 'active').sort((a,b) => (a.matchNumber||0) - (b.matchNumber||0));
+        const slotsRem = 4 - displayMatches.length;
+        for (let i = 0; i < Math.min(upcoming.length, slotsRem); i++) { if (!liveMatch || upcoming[i].matchId !== liveMatch.matchId) displayMatches.push({ ...upcoming[i], cardType: 'upcoming' });}
+
+        if (displayMatches.length > 0) {
+            liveStatusMessageLarge.style.display = 'none'; liveWrapper.style.display = 'flex';
+            displayMatches.forEach(m => { const card = createLargeMatchCard(m, m.cardType === 'live'); liveWrapper.appendChild(card); });
+        } else {
+            liveWrapper.style.display = 'none'; liveStatusMessageLarge.style.display = 'flex';
+            const roundStatus = currentRoundDataForLiveView ? currentRoundDataForLiveView.roundStatus : 'unknown';
+            if (roundStatus === 'completed') liveStatusMessageLarge.textContent = "Round has ended. Waiting for the next round...";
+            else if (roundStatus === 'awaiting_selection' || (allMatches.length === 0 && roundStatus !== 'in-progress' && roundStatus !== 'error')) liveStatusMessageLarge.textContent = "Select players and generate matches to begin.";
+            else if (allMatches.length > 0 && allMatches.every(m => m.status === 'completed')) liveStatusMessageLarge.textContent = "All matches for this round are completed.";
+            else liveStatusMessageLarge.textContent = "Waiting for matches to begin...";
+        }
+        // updateActiveMatchupDisplay(liveMatch || (upcoming.length > 0 ? upcoming[0] : null)); // Already called by listener
+    }
+
+    function createLargeMatchCard(match, isLive) {
+        const card = document.createElement('div');
+        card.className = 'large-match-card-live-view flex-grow-1 d-flex flex-column justify-content-center align-items-stretch text-center position-relative';
+        const p1ELO = match.player1Elo !== undefined ? Math.round(match.player1Elo) : 'N/A'; const p2ELO = match.player2Elo !== undefined ? Math.round(match.player2Elo) : 'N/A';
+        let badgeHTML = isLive ? `<span class="badge bg-red-dark position-absolute top-0 end-0 mt-2 me-2 large-badge">LIVE</span>` : `<span class="badge bg-blue-dark position-absolute top-0 end-0 mt-2 me-2 large-badge">UPCOMING</span>`;
+        if (isLive) card.classList.add('is-live-match-card');
+        card.innerHTML = `${badgeHTML}<div class="player-info-large"><div class="player-name-large">${match.player1Name || 'P1'}</div><div class="elo-text-large">ELO: ${p1ELO}</div></div><div class="vs-text-large my-2">VS</div><div class="player-info-large"><div class="player-name-large">${match.player2Name || 'P2'}</div><div class="elo-text-large">ELO: ${p2ELO}</div></div>`;
+        return card;
+    }
+
+    function updateNewsTickerLive() {
+        const newsTickerEl = document.getElementById('news-ticker-live');
+        if (!newsTickerEl || !players || players.length === 0) {
+            if(newsTickerEl) newsTickerEl.innerHTML = `<span class="ticker-item">Waiting for player data...</span>`;
+            return;
+        }
+
+        let tickerItems = [];
+        const sortedPlayers = [...players].sort((a, b) => b.elo - a.elo);
+
+        if (sortedPlayers.length > 0) tickerItems.push(`Current Leader: ${sortedPlayers[0].name} (${Math.round(sortedPlayers[0].elo)} ELO)`);
+        if (sortedPlayers.length > 1) tickerItems.push(`Rank #2: ${sortedPlayers[1].name} (${Math.round(sortedPlayers[1].elo)} ELO)`);
+        if (sortedPlayers.length > 2) tickerItems.push(`Rank #3: ${sortedPlayers[2].name} (${Math.round(sortedPlayers[2].elo)} ELO)`);
+
+        const playersWithStreaks = players.filter(p => p.stats && p.stats.currentWinningStreak >= 3).sort((a,b) => b.stats.currentWinningStreak - a.stats.currentWinningStreak);
+        if (playersWithStreaks.length > 0) {
+            tickerItems.push(`${playersWithStreaks[0].name} is on a ${playersWithStreaks[0].stats.currentWinningStreak}-game winning streak!`);
+            if (playersWithStreaks.length > 1 && playersWithStreaks[0].stats.currentWinningStreak > playersWithStreaks[1].stats.currentWinningStreak) {
+                 tickerItems.push(`Also streaking: ${playersWithStreaks[1].name} (${playersWithStreaks[1].stats.currentWinningStreak} wins)`);
+            }
+        }
+
+        const highWinRatePlayers = players.filter(p => p.stats && p.stats.totalMatches >= 5 && calculateWinRate(p.stats) >= 70).sort((a,b) => calculateWinRate(b.stats) - calculateWinRate(a.stats));
+        if (highWinRatePlayers.length > 0) {
+            const player = highWinRatePlayers[0];
+            tickerItems.push(`${player.name} has an impressive ${Math.round(calculateWinRate(player.stats))}% win rate over ${player.stats.totalMatches} games!`);
+        }
+
+        let rivalries = [];
+        for (let i = 0; i < players.length; i++) {
+            for (let j = i + 1; j < players.length; j++) {
+                const p1 = players[i]; const p2 = players[j];
+                const p1H2H = p1.stats && p1.stats.opponentStats && p1.stats.opponentStats[p2.id];
+                if (p1H2H && (p1H2H.wins + p1H2H.losses + p1H2H.draws >= 3)) {
+                    rivalries.push({ p1Name: p1.name, p2Name: p2.name, p1Wins: p1H2H.wins, p1Losses: p1H2H.losses, p1Draws: p1H2H.draws, totalGames: p1H2H.wins + p1H2H.losses + p1H2H.draws });
+                }
+            }
+        }
+        rivalries.sort((a,b) => b.totalGames - a.totalGames);
+        if(rivalries.length > 0){
+            const r = rivalries[0];
+            if (r.p1Wins > r.p1Losses) tickerItems.push(`H2H: ${r.p1Name} leads ${r.p2Name} ${r.p1Wins}-${r.p1Losses}${r.p1Draws > 0 ? '-' + r.p1Draws : ''}`);
+            else if (r.p1Losses > r.p1Wins) tickerItems.push(`H2H: ${r.p2Name} leads ${r.p1Name} ${r.p1Losses}-${r.p1Wins}${r.p1Draws > 0 ? '-' + r.p1Draws : ''}`);
+            else tickerItems.push(`H2H: ${r.p1Name} & ${r.p2Name} are tied ${r.p1Wins}-${r.p1Losses}-${r.p1Draws}`);
+        }
+
+        if (tickerItems.length === 0) {
+            tickerItems.push("QuoVadis ELO - Track Player Rankings & Stats!");
+            tickerItems.push("Generate new matches from the 'Players' tab.");
+        }
+
+        let finalTickerItems = tickerItems.length > 5 ? tickerItems.sort(() => 0.5 - Math.random()).slice(0, 5) : tickerItems;
+        if(finalTickerItems.length < 2) finalTickerItems.push("Welcome to QuoVadis ELO!");
+
+        newsTickerEl.innerHTML = finalTickerItems.map(item => `<span class="ticker-item">${item}</span>`).join('');
+    }
+
+    function updateNewsTicker() {
+        // This function might be for a generic news ticker, keeping it separate from updateNewsTickerLive
+        // For now, not essential if updateNewsTickerLive covers the live view's needs.
+        console.log("Generic news ticker update (if used).");
+    }
+
+    function updateActiveMatchupDisplay(activeMatch = null) {
+        if (!activeMatchupDisplay) return; const matchupText = activeMatchupDisplay.querySelector('.matchup-text'); if (!matchupText) return;
+        if (activeMatch) {
+            const p1N = activeMatch.player1Name || 'P1';
+            const p2N = activeMatch.player2Name || 'P2';
+            matchupText.textContent = `${p1N} vs ${p2N} ${activeMatch.status === 'live' ? '(LIVE)' : ''}`;
+            if (autoModeEnabled && activeMatch.status === 'active' && activeMatch.matchId !== lastSpokenNextMatchId) {
+                if ('speechSynthesis' in window) {
+                    try {
+                        // If a previous announcement is still speaking, let it finish (no immediate cancel) to avoid clipping.
+                        const utterance = new SpeechSynthesisUtterance(`${p1N} versus ${p2N}`);
+                        window.speechSynthesis.speak(utterance);
+                    } catch (err) {
+                        console.warn('Speech synthesis failed:', err);
+                    }
+                }
+                lastSpokenNextMatchId = activeMatch.matchId;
+
+                // Schedule automatic start of the match after announcement delay
+                setTimeout(() => {
+                    // Only proceed if auto mode is still on and the match is still in 'active' state
+                    if (!autoModeEnabled) return;
+                    const stillActive = currentMatchSet.find(m => m.matchId === activeMatch.matchId && m.status === 'active');
+                    if (stillActive) {
+                        // Audible cue (beep only, no speech)
+                        playBeep();
+                        // Start match programmatically to enable subsequent auto-draw logic
+                        handleStartMatch(activeMatch.matchId, /*isAuto*/ true);
+                    }
+                }, AUTO_START_DELAY_MS);
+            } else if (activeMatch.status === 'live') {
+                lastSpokenNextMatchId = null;
+            }
+        } else {
+            matchupText.textContent = "No active match";
+        }
+    }
+
+    async function showPlayerHistory(playerId) {
+        if (!playerHistoryOverlay || !playerHistoryContent) return;
+        const player = players.find(p => p.id === playerId); if (!player) return;
+        playerHistoryContent.innerHTML = '';
+        const header = document.createElement('h2'); header.textContent = `Match History for ${player.name}`; header.className = 'color-white mb-3'; playerHistoryContent.appendChild(header);
+        try {
+            const pMatches = matchHistory.filter(m => m.player1Id === playerId || m.player2Id === playerId);
+            if (pMatches.length === 0) { playerHistoryContent.insertAdjacentHTML('beforeend', '<p class="opacity-70">No match history available.</p>'); }
+            else {
+                pMatches.sort((a, b) => (b.timestamp.toDate ? b.timestamp.toDate().getTime() : new Date(b.timestamp).getTime()) - (a.timestamp.toDate ? a.timestamp.toDate().getTime() : new Date(a.timestamp).getTime()));
+                const list = document.createElement('div'); list.className = 'player-match-history-list';
+                pMatches.forEach(m => { list.appendChild(createPlayerHistoryMatchCard(m, player)); });
+                playerHistoryContent.appendChild(list);
+            }
+            playerHistoryOverlay.classList.add('active'); document.body.style.overflow = 'hidden';
+        } catch (e) { console.error("Error displaying player history:", e); playerHistoryContent.insertAdjacentHTML('beforeend', '<p>Error loading history.</p>'); }
+    }
+
+    function createPlayerHistoryMatchCard(match, player) {
+        const card = document.createElement('div'); card.className = 'card card-style mb-2';
+        const isP1 = match.player1Id === player.id; const oppN = isP1 ? match.player2Name : match.player1Name;
+        let resTxt, resCls;
+        if ((match.result === 'player1Wins' && isP1) || (match.result === 'player2Wins' && !isP1)) { resTxt = 'Win'; resCls = 'text-success'; }
+        else if ((match.result === 'player1Wins' && !isP1) || (match.result === 'player2Wins' && isP1)) { resTxt = 'Loss'; resCls = 'text-danger'; }
+        else { resTxt = 'Draw'; resCls = 'text-warning'; }
+        const mDate = match.timestamp ? (match.timestamp.toDate ? match.timestamp.toDate() : new Date(match.timestamp)) : new Date();
+        const fDate = mDate.toLocaleDateString() + " " + mDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        card.innerHTML = `<div class="content"><div class="d-flex justify-content-between align-items-center"><div><h6 class="mb-1">vs ${oppN}</h6><p class="font-11 opacity-70 mb-0">${fDate}</p></div><div class="text-end"><span class="badge ${resCls}">${resTxt}</span></div></div></div>`;
+        return card;
+    }
+
+    async function init() {
+        console.log("ELO System initializing...");
+        await ensureGlobalSessionId();
+        await initializePlayers(); await initializeMatchHistory();
+        if (players && players.length > 0) {
+            renderPlayerList(); renderLeaderboard(); renderMatchList(); renderPlayerManagementList();
+            setupLiveMatchesListener();
+            // updateNewsTicker(); // Generic ticker, if needed separately from live view
+            if (playerHistoryCloseBtn) playerHistoryCloseBtn.addEventListener('click', () => { playerHistoryOverlay.classList.remove('active'); document.body.style.overflow = ''; });
+            if (playerHistoryOverlay) playerHistoryOverlay.addEventListener('click', (e) => { if (e.target === playerHistoryOverlay) { playerHistoryOverlay.classList.remove('active'); document.body.style.overflow = ''; } });
+            if (generateMatchesBtn) generateMatchesBtn.addEventListener('click', () => { autoModeEnabled = false; generateMatches(); });
+            if (generateMatchesAutoBtn) generateMatchesAutoBtn.addEventListener('click', () => { autoModeEnabled = true; generateMatches(); });
+            if (endRoundBtn) endRoundBtn.addEventListener('click', endRound);
+            if (updateEloNextRoundBtn) updateEloNextRoundBtn.addEventListener('click', updateEloAndStartNextRound);
+            if (resetAllElosBtn) resetAllElosBtn.addEventListener('click', resetAllPlayerElos);
+            if (resetSelectedElosBtn) resetSelectedElosBtn.addEventListener('click', resetSelectedPlayerElos);
+            if (resetToStep1BtnFromMatches) {
+                resetToStep1BtnFromMatches.addEventListener('click', async () => {
+                    currentMatchSet = []; renderMatchList(); players.forEach(p => p.selected = true); renderPlayerList();
+                    lastPlayerWhoSatOutId = null; lastKnownLiveMatchIdForBeep = null; isInitialLiveCheck = true;
+                    try { await db.collection('activeRoundState').doc('details').set({ sessionId: SESSION_ID, roundId: `cleared-${new Date().toISOString()}`, matches: [], roundStatus: 'awaiting_selection' }); } catch (e) { console.error("Error setting active round state:", e); }
+                    document.querySelectorAll('#elo-header-navigation .btn').forEach(b => { b.classList.remove('bg-highlight', 'text-white'); b.classList.add('border-highlight', 'color-highlight'); }); document.querySelectorAll('.elo-view').forEach(v => v.classList.remove('active'));
+                    document.querySelector('#elo-header-navigation [data-view="player-selection"]').classList.add('active'); document.getElementById('elo-player-selection-view').classList.add('active');
+                });
+            }
+            // Activate the first tab (Players) by default if no other logic sets it
+            const activeNavButton = document.querySelector('#elo-header-navigation .btn.bg-highlight');
+            if (!activeNavButton) {
+                 document.querySelector('#elo-header-navigation [data-view="player-selection"]').classList.add('active');
+                 document.getElementById('elo-player-selection-view').classList.add('active');
+            }
+
+            console.log("ELO System initialized successfully.");
+        } else { console.error("Failed to initialize players."); }
+    }
+
+    async function endRound() {
+        const success = await markRoundAsCompleted();
+        if (success) {
+            renderLeaderboard(); players.forEach(p => p.selected = true); renderPlayerList();
+            document.querySelectorAll('#elo-header-navigation .btn').forEach(b => { b.classList.remove('bg-highlight', 'text-white'); b.classList.add('border-highlight', 'color-highlight'); }); document.querySelectorAll('.elo-view').forEach(v => v.classList.remove('active'));
+            document.querySelector('#elo-header-navigation [data-view="player-selection"]').classList.add('active'); document.getElementById('elo-player-selection-view').classList.add('active');
+            showNotification("Round ended. Select players for the next round.", 3000, true);
+        } else { showNotification("Error ending round.", 3000, false); }
+        currentMatchSet = []; renderMatchList(); lastKnownLiveMatchIdForBeep = null; isInitialLiveCheck = true;
+    }
+
+    async function updateEloAndStartNextRound() {
+        const selPIds = players.filter(p => p.selected).map(p => p.id);
+        await markRoundAsCompleted();
+        players.forEach(p => { p.selected = selPIds.includes(p.id); });
+        renderLeaderboard(); await generateMatches();
+        showNotification("New round started!", 3000, true); // This sound is for "new round" event
+    }
+
+    async function resetAllPlayerElos() {
+        if (!confirm(`Reset ELOs for ALL ${players.length} players to ${DEFAULT_ELO}?`)) return;
+        const batch = db.batch();
+        players.forEach(p => {
+            const initialStats = { totalMatches: 0, wins: 0, losses: 0, draws: 0, winRate: 0, opponentStats: {}, currentWinningStreak: 0, currentLosingStreak: 0 };
+            batch.update(db.collection('players').doc(p.id), { elo: DEFAULT_ELO, stats: initialStats });
+            p.elo = DEFAULT_ELO; p.stats = initialStats;
+        });
+        try { await batch.commit(); showNotification("All player ELOs reset.", 3000, true); renderPlayerList(); renderLeaderboard(); renderPlayerManagementList(); }
+        catch (e) { console.error("Error resetting all ELOs:", e); showNotification("Error resetting ELOs.", 3000, false); }
+    }
+
+    async function resetSelectedPlayerElos() {
+        if (!specificPlayerResetListContainer) return;
+        const selCB = specificPlayerResetListContainer.querySelectorAll('.player-reset-checkbox:checked');
+        if (selCB.length === 0) { showNotification("Select players to reset.", 3000, false); return; }
+        const pIdsToReset = Array.from(selCB).map(cb => cb.dataset.playerId);
+        if (!confirm(`Reset ELOs for ${pIdsToReset.length} player(s) to ${DEFAULT_ELO}?`)) return;
+        const batch = db.batch();
+        pIdsToReset.forEach(pId => {
+            const p = players.find(pl => pl.id === pId);
+            if (p) {
+                const initialStats = { totalMatches: 0, wins: 0, losses: 0, draws: 0, winRate: 0, opponentStats: {}, currentWinningStreak: 0, currentLosingStreak: 0 };
+                batch.update(db.collection('players').doc(pId), { elo: DEFAULT_ELO, stats: initialStats });
+                p.elo = DEFAULT_ELO; p.stats = initialStats;
+            }
+        });
+        try { await batch.commit(); showNotification("Selected ELOs reset.", 3000, true); renderPlayerList(); renderLeaderboard(); renderPlayerManagementList(); }
+        catch (e) { console.error("Error resetting selected ELOs:", e); showNotification("Error resetting ELOs.", 3000, false); }
+    }
+
+    init();
+});
+</script>
+</div>
+</body>
+</html>
