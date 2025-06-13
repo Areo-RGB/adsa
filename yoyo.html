@@ -15,34 +15,6 @@
             --light-gray: #e9ecef;
             --border-radius: 8px;
         }
-
-        /* Session Controls Styles */
-        .session-controls {
-            background-color: var(--background-color);
-            padding: 15px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-        }
-
-        .session-status {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-bottom: 10px;
-        }
-
-        .session-buttons {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .session-input {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid var(--light-gray);
-            border-radius: var(--border-radius);
-            font-size: 0.9rem;
-        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             display: flex;
@@ -105,65 +77,10 @@
         .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .add-athlete {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .athlete-input {
-            flex: 1;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid var(--light-gray);
-            border-radius: var(--border-radius);
-            outline: none;
-        }
-        .athlete-input:focus {
-            border-color: var(--primary-color);
-        }
-        .session-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: var(--light-gray);
-            border-radius: var(--border-radius);
-        }
-        .session-status {
-            font-size: 0.9rem;
-            color: #333;
-        }
-        .session-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        .session-input {
-            flex: 1;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid var(--light-gray);
-            border-radius: var(--border-radius);
-            outline: none;
-        }
-        .session-input:focus {
-            border-color: var(--primary-color);
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Add session controls at the top -->
-        <div id="session-controls" class="session-controls">
-            <div class="session-status">Session ID: <span id="session-id">None</span></div>
-            <div class="session-buttons">
-                <button id="create-session" class="btn">Create Session</button>
-                <input type="text" id="join-session-id" placeholder="Enter Session ID" class="session-input">
-                <button id="join-session" class="btn">Join Session</button>
-            </div>
-        </div>
-
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="test-tab">Test</button>
             <button class="tab-btn" data-tab="results-tab">Results</button>
@@ -184,10 +101,6 @@
                 </div>
                 <canvas id="animationCanvas" width="650" height="100"></canvas>
                 <h2>Athletes</h2>
-                <div class="add-athlete">
-                    <input type="text" id="new-athlete" placeholder="Enter athlete name" class="athlete-input">
-                    <button id="add-athlete-btn" class="btn">Add</button>
-                </div>
                 <div id="name-grid" class="name-grid"></div>
                 <div class="controls">
                     <button id="startBtn" class="btn">Start</button>
@@ -199,6 +112,14 @@
             <div id="results-tab" class="tab-content">
                 <h2>Final Results</h2>
                 <pre id="results-display" class="results-display">Awaiting test completion...</pre>
+
+                <h2>Leaderboard (All Time)</h2>
+                <div class="controls" style="margin: 15px 0;">
+                    <button id="refreshLeaderboardBtn" class="btn" style="background-color: #5bc0de; color: white;">Refresh Leaderboard</button>
+                    <button id="clearLeaderboardBtn" class="btn" style="background-color: #d9534f; color: white;">Clear Leaderboard</button>
+                    <button id="testDbBtn" class="btn" style="background-color: #6f42c1; color: white;">Test Database</button>
+                </div>
+                <pre id="leaderboard-display" class="results-display">Loading leaderboard...</pre>
             </div>
         </div>
     </div>
@@ -210,242 +131,28 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // WebSocket Setup
-            let ws = null;
-            let currentSessionId = null;
+            const ATHLETES = ['Silas','Finley','Iraklis','Orestis','Erik','Arvid','Lion','Jakob','Paul','Levi','Lasse','Nicklas','Carl'];
+            const timeDistanceEvents = generateYoYoIR1Timeline();
 
-            function connectWebSocket() {
-                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                ws = new WebSocket(`${protocol}//${window.location.host}`);
-
-                ws.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-
-                    switch(data.type) {
-                        case 'session_created':
-                        case 'session_joined':
-                            currentSessionId = data.sessionId;
-                            document.getElementById('session-id').textContent = currentSessionId;
-                            updateSessionControls();
-                            break;
-
-                        case 'test_state':
-                            if (data.state === 'running') {
-                                handleRemoteTestStart(data);
-                            } else if (data.state === 'paused') {
-                                handleRemoteTestPause();
-                            } else if (data.state === 'reset') {
-                                handleRemoteTestReset();
-                            }
-                            break;
-
-                        case 'athlete_warning':
-                            handleRemoteAthleteWarning(data.athleteName);
-                            break;
-
-                        case 'device_joined':
-                        case 'device_left':
-                            // Could add UI notification here
-                            break;
-                    }
-                };
-
-                ws.onclose = () => {
-                    setTimeout(connectWebSocket, 1000); // Reconnect on close
-                };
-            }
-
-            // Session Control Functions
-            document.getElementById('create-session').addEventListener('click', () => {
-                ws.send(JSON.stringify({ type: 'create_session' }));
-            });
-
-            document.getElementById('join-session').addEventListener('click', () => {
-                const sessionId = document.getElementById('join-session-id').value.trim();
-                if (sessionId) {
-                    ws.send(JSON.stringify({
-                        type: 'join_session',
-                        sessionId: sessionId
-                    }));
-                }
-            });
-
-            function updateSessionControls() {
-                const hasSession = currentSessionId !== null;
-                document.getElementById('create-session').disabled = hasSession;
-                document.getElementById('join-session').disabled = hasSession;
-                document.getElementById('join-session-id').disabled = hasSession;
-            }
-
-            function handleRemoteTestStart(data) {
-                if (testState === 'idle') {
-                    startTime = Date.now() - (data.elapsedTime || 0);
-                    testState = 'running';
-                    startBtn.disabled = true;
-                    pauseBtn.disabled = false;
-                    animationFrameId = requestAnimationFrame(updateUI);
-                }
-            }
-
-            function handleRemoteTestPause() {
-                if (testState === 'running') {
-                    handlePause();
-                }
-            }
-
-            function handleRemoteTestReset() {
-                handleReset();
-            }
-
-            function handleRemoteAthleteWarning(athleteName) {
-                const button = Array.from(document.querySelectorAll('.name-btn'))
-                    .find(btn => btn.dataset.name === athleteName);
-
-                if (button && !button.classList.contains('out')) {
-                    const athlete = athletes[athleteName];
-                    if (!athlete.isOut && !tappedInCurrentSegment.has(athleteName)) {
-                        tappedInCurrentSegment.add(athleteName);
-                        if (athlete.warnings === 0) {
-                            athlete.warnings = 1;
-                            button.classList.add('warned');
-                        } else {
-                            athlete.isOut = true;
-                            const finalScoreEvent = lastEventIndex > 0 ? timeDistanceEvents[lastEventIndex-1] : {level: 1, distance: '0m'};
-                            athlete.finalResult = {level: finalScoreEvent.level, distance: finalScoreEvent.distance};
-                            button.classList.remove('warned');
-                            button.classList.add('out');
-                            saveResultToDatabase(athleteName, finalScoreEvent.level, finalScoreEvent.distance);
-                            updateResultsDisplay();
-                        }
-                    }
-                }
-            }
-
-            // Modified event handlers to broadcast state
-            function handleStart() {
-                if (testState !== 'idle') return;
-                if (currentSessionId) {
-                    ws.send(JSON.stringify({
-                        type: 'test_state',
-                        state: 'running',
-                        elapsedTime: 0
-                    }));
-                }
-                testState = 'running';
-                startTime = Date.now();
-                startBtn.disabled = true;
-                pauseBtn.disabled = false;
-                animationFrameId = requestAnimationFrame(updateUI);
-            }
-
-            function handlePause() {
-                if (testState === 'running') {
-                    testState = 'paused';
-                    cancelAnimationFrame(animationFrameId);
-                    elapsedTimeOnPause += (Date.now() - startTime) / 1000;
-                    pauseBtn.textContent = 'Resume';
-                    if (currentSessionId) {
-                        ws.send(JSON.stringify({
-                            type: 'test_state',
-                            state: 'paused'
-                        }));
-                    }
-                } else if (testState === 'paused') {
-                    testState = 'running';
-                    startTime = Date.now();
-                    pauseBtn.textContent = 'Pause';
-                    animationFrameId = requestAnimationFrame(updateUI);
-                    if (currentSessionId) {
-                        ws.send(JSON.stringify({
-                            type: 'test_state',
-                            state: 'running',
-                            elapsedTime: elapsedTimeOnPause * 1000
-                        }));
-                    }
-                }
-            }
-
-            function handleReset() {
-                cancelAnimationFrame(animationFrameId);
-                if (currentSessionId) {
-                    ws.send(JSON.stringify({
-                        type: 'test_state',
-                        state: 'reset'
-                    }));
-                }
-                // ... existing reset code ...
-            }
-
-            function handleNameTap(event) {
-                if(testState!=='running')return;
-                const button=event.target.closest('.name-btn');
-                if(!button)return;
-                const name=button.dataset.name;
-                const athlete=athletes[name];
-                if(athlete.isOut||tappedInCurrentSegment.has(name)){return}
-
-                if (currentSessionId) {
-                    ws.send(JSON.stringify({
-                        type: 'athlete_warning',
-                        athleteName: name
-                    }));
-                }
-
-                tappedInCurrentSegment.add(name);
-                if(athlete.warnings===0){
-                    athlete.warnings=1;
-                    button.classList.add('warned');
-                }else{
-                    athlete.isOut=true;
-                    const finalScoreEvent=lastEventIndex>0?timeDistanceEvents[lastEventIndex-1]:{level:1,distance:'0m'};
-                    athlete.finalResult={level:finalScoreEvent.level,distance:finalScoreEvent.distance};
-                    button.classList.remove('warned');
-                    button.classList.add('out');
-                    saveResultToDatabase(name, finalScoreEvent.level, finalScoreEvent.distance);
-                    updateResultsDisplay();
-                }
-            }
-
-            // Initialize WebSocket connection
-            connectWebSocket();
-
-            // --- Database Integration ---
-            async function saveResultToDatabase(athleteName, level, distance) {
-                try {
-                    const response = await fetch('/save-result', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            athleteName,
-                            level,
-                            distance,
-                            timestamp: new Date().toISOString()
-                        })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Failed to save result');
-                    }
-
-                    console.log(`Saved result for ${athleteName}`);
-                } catch (error) {
-                    console.error('Error saving result:', error);
-                }
-            }
+            // --- Database Configuration ---
+            const UPSTASH_URL = 'https://kind-alien-18447.upstash.io';
+            const UPSTASH_TOKEN = 'AUgPAAIjcDFiOTlkM2Q4OWU1Y2U0NmZiYjcxN2M0YTdhNjllZmY0MHAxMA';
+            const LEADERBOARD_KEY = 'yoyo_leaderboard';
 
             // --- Audio Setup ---
             const beepSound = new Audio('https://videos-data.fra1.cdn.digitaloceanspaces.com/beep.wav');
             const accelereSound = new Audio('https://videos-data.fra1.cdn.digitaloceanspaces.com/accelere.mp3');
+            const recoupSound = new Audio('https://videos-data.fra1.cdn.digitaloceanspaces.com/recoup.mp3');
 
             // --- UI Elements ---
             const tabNav = document.querySelector('.tab-nav');
             const tabContents = document.querySelectorAll('.tab-content');
             const nameGrid = document.getElementById('name-grid');
-            const newAthleteInput = document.getElementById('new-athlete');
-            const addAthleteBtn = document.getElementById('add-athlete-btn');
             const resultsDisplay = document.getElementById('results-display');
+            const leaderboardDisplay = document.getElementById('leaderboard-display');
+            const refreshLeaderboardBtn = document.getElementById('refreshLeaderboardBtn');
+            const clearLeaderboardBtn = document.getElementById('clearLeaderboardBtn');
+            const testDbBtn = document.getElementById('testDbBtn');
             const timerDisplay = document.getElementById('timer');
             const distanceDisplay = document.getElementById('distance');
             const levelDisplay = document.getElementById('level');
@@ -468,8 +175,6 @@
             let startTime = 0, elapsedTimeOnPause = 0, lastEventIndex = -1;
             let athletes = {};
             let tappedInCurrentSegment = new Set();
-            let sessionId = null;
-            let socket = null;
 
             // --- Functions ---
             function playBeep() {
@@ -479,6 +184,154 @@
             function playAccelere() {
                 accelereSound.currentTime = 0;
                 accelereSound.play().catch(error => console.error("Accelere playback failed:", error));
+            }
+            function playRecoup() {
+                recoupSound.currentTime = 0;
+                recoupSound.play().catch(error => console.error("Recoup playback failed:", error));
+            }
+
+            // --- Database Functions ---
+            async function saveToLeaderboard(name, distance, level) {
+                try {
+                    const timestamp = new Date().toISOString();
+                    const distanceNum = parseInt(distance.replace('m', ''));
+
+                    // Get current leaderboard
+                    const currentData = await fetch(`${UPSTASH_URL}/get/${LEADERBOARD_KEY}`, {
+                        headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                    }).then(res => res.json()).catch(() => ({ result: null }));
+
+                    let leaderboard = [];
+                    if (currentData.result) {
+                        leaderboard = JSON.parse(currentData.result);
+                    }
+
+                    // Add new result
+                    leaderboard.push({
+                        name,
+                        distance: distanceNum,
+                        level,
+                        timestamp,
+                        distanceText: distance
+                    });
+
+                    // Sort by distance (highest first)
+                    leaderboard.sort((a, b) => b.distance - a.distance);
+
+                    // Keep only top 50 results
+                    leaderboard = leaderboard.slice(0, 50);
+
+                    // Save back to database
+                    await fetch(`${UPSTASH_URL}/set/${LEADERBOARD_KEY}/${encodeURIComponent(JSON.stringify(leaderboard))}`, {
+                        headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                    });
+
+                    console.log(`Saved ${name}'s result: ${distance}`);
+                    await loadLeaderboard(); // Refresh display
+                } catch (error) {
+                    console.error('Failed to save to leaderboard:', error);
+                }
+            }
+
+            async function loadLeaderboard() {
+                try {
+                    const response = await fetch(`${UPSTASH_URL}/get/${LEADERBOARD_KEY}`, {
+                        headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                    });
+                    const data = await response.json();
+
+                    if (data.result) {
+                        const leaderboard = JSON.parse(data.result);
+                        displayLeaderboard(leaderboard);
+                    } else {
+                        leaderboardDisplay.textContent = 'No leaderboard data available.';
+                    }
+                } catch (error) {
+                    console.error('Failed to load leaderboard:', error);
+                    leaderboardDisplay.textContent = 'Failed to load leaderboard.';
+                }
+            }
+
+            function displayLeaderboard(leaderboard) {
+                if (!leaderboard || leaderboard.length === 0) {
+                    leaderboardDisplay.textContent = 'No results recorded yet.';
+                    return;
+                }
+
+                let output = 'Rank  Name        Distance  Level  Date\n';
+                output += '----  ----------  --------  -----  ----------\n';
+
+                leaderboard.forEach((result, index) => {
+                    const rank = (index + 1).toString().padEnd(4);
+                    const name = result.name.padEnd(10);
+                    const distance = result.distanceText.padEnd(8);
+                    const level = result.level.toString().padEnd(5);
+                    const date = new Date(result.timestamp).toLocaleDateString();
+
+                    output += `${rank}  ${name}  ${distance}  ${level}  ${date}\n`;
+                });
+
+                leaderboardDisplay.textContent = output;
+            }
+
+            async function clearLeaderboard() {
+                if (confirm('Are you sure you want to clear the entire leaderboard? This cannot be undone.')) {
+                    try {
+                        await fetch(`${UPSTASH_URL}/del/${LEADERBOARD_KEY}`, {
+                            headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                        });
+                        leaderboardDisplay.textContent = 'Leaderboard cleared.';
+                        console.log('Leaderboard cleared');
+                    } catch (error) {
+                        console.error('Failed to clear leaderboard:', error);
+                        alert('Failed to clear leaderboard.');
+                    }
+                }
+            }
+
+            async function testDatabase() {
+                try {
+                    console.log('Testing database connection...');
+
+                    // Test 1: Set a test value
+                    const testKey = 'db_test';
+                    const testValue = `Test at ${new Date().toISOString()}`;
+
+                    console.log('Step 1: Setting test value...');
+                    const setResponse = await fetch(`${UPSTASH_URL}/set/${testKey}/${encodeURIComponent(testValue)}`, {
+                        headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                    });
+                    const setResult = await setResponse.json();
+                    console.log('Set response:', setResult);
+
+                    // Test 2: Get the test value back
+                    console.log('Step 2: Getting test value...');
+                    const getResponse = await fetch(`${UPSTASH_URL}/get/${testKey}`, {
+                        headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                    });
+                    const getResult = await getResponse.json();
+                    console.log('Get response:', getResult);
+
+                    // Test 3: Check if values match
+                    if (getResult.result === testValue) {
+                        console.log('✅ Database test PASSED');
+                        alert('✅ Database test PASSED!\n\nConnection successful:\n- Can write data\n- Can read data\n- Values match correctly\n\nCheck console for details.');
+                    } else {
+                        console.log('❌ Database test FAILED - Values don\'t match');
+                        alert('❌ Database test FAILED\n\nValues don\'t match:\nExpected: ' + testValue + '\nGot: ' + getResult.result);
+                    }
+
+                    // Test 4: Clean up test data
+                    console.log('Step 3: Cleaning up test data...');
+                    await fetch(`${UPSTASH_URL}/del/${testKey}`, {
+                        headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                    });
+                    console.log('Test cleanup completed');
+
+                } catch (error) {
+                    console.error('Database test failed:', error);
+                    alert('❌ Database test FAILED\n\nError: ' + error.message + '\n\nCheck console for details.');
+                }
             }
 
             function setupAthleteButtons() {
@@ -499,13 +352,6 @@
 
             function handleStart() {
                 if (testState !== 'idle') return;
-                if (currentSessionId) {
-                    ws.send(JSON.stringify({
-                        type: 'test_state',
-                        state: 'running',
-                        elapsedTime: 0
-                    }));
-                }
                 testState = 'running';
                 startTime = Date.now();
                 startBtn.disabled = true;
@@ -534,9 +380,12 @@
 
                     if (segment === 'Run Out') {
                         playBeep();
-                        setTimeout(playAccelere, 150); // Play accelere sound after the beep
-                    } else if (segment === 'Run Back' || segment === 'Recovery Out') {
+                        setTimeout(playAccelere, 150);
+                    } else if (segment === 'Run Back') {
                         playBeep();
+                    } else if (segment === 'Recovery Out') {
+                        playBeep();
+                        setTimeout(playRecoup, 150);
                     }
                 }
                 lastEventIndex = newIndex;
@@ -568,60 +417,13 @@
             }
 
             function handleNameTap(event) {
-                if(testState!=='running')return;
-                const button=event.target.closest('.name-btn');
-                if(!button)return;
-                const name=button.dataset.name;
-                const athlete=athletes[name];
-                if(athlete.isOut||tappedInCurrentSegment.has(name)){return}
-
-                if (currentSessionId) {
-                    ws.send(JSON.stringify({
-                        type: 'athlete_warning',
-                        athleteName: name
-                    }));
-                }
-
-                tappedInCurrentSegment.add(name);
-                if(athlete.warnings===0){
-                    athlete.warnings=1;
-                    button.classList.add('warned');
-                }else{
-                    athlete.isOut=true;
-                    const finalScoreEvent=lastEventIndex>0?timeDistanceEvents[lastEventIndex-1]:{level:1,distance:'0m'};
-                    athlete.finalResult={level:finalScoreEvent.level,distance:finalScoreEvent.distance};
-                    button.classList.remove('warned');
-                    button.classList.add('out');
-                    saveResultToDatabase(name, finalScoreEvent.level, finalScoreEvent.distance);
-                    updateResultsDisplay();
-                }
+                if(testState!=='running')return;const button=event.target.closest('.name-btn');if(!button)return;const name=button.dataset.name;const athlete=athletes[name];if(athlete.isOut||tappedInCurrentSegment.has(name)){return}tappedInCurrentSegment.add(name);if(athlete.warnings===0){athlete.warnings=1;button.classList.add('warned')}else{athlete.isOut=true;const finalScoreEvent=lastEventIndex>0?timeDistanceEvents[lastEventIndex-1]:{level:1,distance:'0m'};athlete.finalResult={level:finalScoreEvent.level,distance:finalScoreEvent.distance};button.classList.remove('warned');button.classList.add('out');updateResultsDisplay();
+                    // Save to leaderboard
+                    saveToLeaderboard(name, athlete.finalResult.distance, athlete.finalResult.level);}
             }
 
             function handlePause() {
-                if (testState === 'running') {
-                    testState = 'paused';
-                    cancelAnimationFrame(animationFrameId);
-                    elapsedTimeOnPause += (Date.now() - startTime) / 1000;
-                    pauseBtn.textContent = 'Resume';
-                    if (currentSessionId) {
-                        ws.send(JSON.stringify({
-                            type: 'test_state',
-                            state: 'paused'
-                        }));
-                    }
-                } else if (testState === 'paused') {
-                    testState = 'running';
-                    startTime = Date.now();
-                    pauseBtn.textContent = 'Pause';
-                    animationFrameId = requestAnimationFrame(updateUI);
-                    if (currentSessionId) {
-                        ws.send(JSON.stringify({
-                            type: 'test_state',
-                            state: 'running',
-                            elapsedTime: elapsedTimeOnPause * 1000
-                        }));
-                    }
-                }
+                if(testState==='running'){testState='paused';cancelAnimationFrame(animationFrameId);elapsedTimeOnPause+=(Date.now()-startTime)/1e3;pauseBtn.textContent='Resume'}else if(testState==='paused'){testState='running';startTime=Date.now();pauseBtn.textContent='Pause';animationFrameId=requestAnimationFrame(updateUI)}
             }
 
             function activateTab(tabId) {
@@ -632,18 +434,12 @@
             }
 
             function handleTabClick(event) {
-                const button = event.target.closest('.tab-btn');
-                if (button) { activateTab(button.dataset.tab); }
+                const button = event.target.closest('.name-btn') || event.target.closest('.tab-btn');
+                if (button && button.matches('.tab-btn')) { activateTab(button.dataset.tab); }
             }
 
             function handleReset() {
                 cancelAnimationFrame(animationFrameId);
-                if (currentSessionId) {
-                    ws.send(JSON.stringify({
-                        type: 'test_state',
-                        state: 'reset'
-                    }));
-                }
                 testState = 'idle';
                 startTime = 0; elapsedTimeOnPause = 0; lastEventIndex = -1;
                 timerDisplay.textContent = '00:00.0'; distanceDisplay.textContent = '0m';
@@ -652,18 +448,9 @@
                 drawCanvasScene(START_X);
                 tappedInCurrentSegment.clear();
                 setupAthleteButtons();
-                resultsDisplay.textContent = 'Awaiting test start...';
+                resultsDisplay.textContent = 'Awaiting test completion...';
                 startBtn.disabled = false; pauseBtn.disabled = true; pauseBtn.textContent = 'Pause';
                 activateTab('test-tab');
-            }
-
-            function handleAddAthlete() {
-                const name = newAthleteInput.value.trim();
-                if (name && !ATHLETES.includes(name)) {
-                    ATHLETES.push(name);
-                    setupAthleteButtons();
-                    newAthleteInput.value = '';
-                }
             }
 
             // --- Event Listeners and Initial Setup ---
@@ -672,16 +459,12 @@
             startBtn.addEventListener('click', handleStart);
             pauseBtn.addEventListener('click', handlePause);
             resetBtn.addEventListener('click', handleReset);
-            addAthleteBtn.addEventListener('click', handleAddAthlete);
-            newAthleteInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    handleAddAthlete();
-                }
-            });
-            document.getElementById('create-session').addEventListener('click', handleCreateSession);
-            document.getElementById('join-session').addEventListener('click', handleJoinSession);
+            refreshLeaderboardBtn.addEventListener('click', loadLeaderboard);
+            clearLeaderboardBtn.addEventListener('click', clearLeaderboard);
+            testDbBtn.addEventListener('click', testDatabase);
 
             handleReset();
+            loadLeaderboard(); // Load leaderboard on page load
         });
     </script>
 </body>

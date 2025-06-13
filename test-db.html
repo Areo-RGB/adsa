@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upstash Redis Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn.success {
+            background-color: #28a745;
+        }
+        .btn.danger {
+            background-color: #dc3545;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Upstash Redis Database Test</h1>
+        <p>This page tests the connection to your Upstash Redis database using the same credentials as your Yo-Yo application.</p>
+
+        <div class="controls">
+            <button class="btn" onclick="runBasicTest()">Run Basic Test</button>
+            <button class="btn" onclick="runLeaderboardTest()">Test Leaderboard Functions</button>
+            <button class="btn" onclick="runFullTest()">Run Full Test Suite</button>
+            <button class="btn danger" onclick="clearLogs()">Clear Logs</button>
+        </div>
+
+        <div id="status"></div>
+        <div id="log" class="log">Ready to test...\n</div>
+    </div>
+
+    <script>
+        const UPSTASH_URL = 'https://kind-alien-18447.upstash.io';
+        const UPSTASH_TOKEN = 'AUgPAAIjcDFiOTlkM2Q4OWU1Y2U0NmZiYjcxN2M0YTdhNjllZmY0MHAxMA';
+
+        const logElement = document.getElementById('log');
+        const statusElement = document.getElementById('status');
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function setStatus(message, type = 'info') {
+            statusElement.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function clearLogs() {
+            logElement.textContent = 'Logs cleared...\n';
+            statusElement.innerHTML = '';
+        }
+
+        async function runBasicTest() {
+            log('🚀 Starting basic Redis test...');
+            setStatus('Running basic test...', 'info');
+
+            try {
+                // Test 1: Set value
+                log('📝 Setting test value...');
+                const setResponse = await fetch(`${UPSTASH_URL}/set/test_basic/hello_world`, {
+                    headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                });
+                const setResult = await setResponse.json();
+                log(`   Set response: ${JSON.stringify(setResult)}`);
+
+                // Test 2: Get value
+                log('📝 Getting test value...');
+                const getResponse = await fetch(`${UPSTASH_URL}/get/test_basic`, {
+                    headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                });
+                const getResult = await getResponse.json();
+                log(`   Get response: ${JSON.stringify(getResult)}`);
+
+                // Test 3: Verify
+                if (getResult.result === 'hello_world') {
+                    log('✅ Basic test PASSED!');
+                    setStatus('✅ Basic test PASSED!', 'success');
+                } else {
+                    log('❌ Basic test FAILED!');
+                    setStatus('❌ Basic test FAILED!', 'error');
+                }
+
+                // Cleanup
+                log('🧹 Cleaning up...');
+                await fetch(`${UPSTASH_URL}/del/test_basic`, {
+                    headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                });
+                log('✅ Cleanup completed');
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`);
+                setStatus(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function runLeaderboardTest() {
+            log('🏆 Starting leaderboard test...');
+            setStatus('Running leaderboard test...', 'info');
+
+            try {
+                // Test leaderboard data
+                const testLeaderboard = [
+                    { name: 'Alice', distance: 120, level: 6, timestamp: new Date().toISOString() },
+                    { name: 'Bob', distance: 80, level: 4, timestamp: new Date().toISOString() },
+                    { name: 'Charlie', distance: 100, level: 5, timestamp: new Date().toISOString() }
+                ];
+
+                log('📝 Saving test leaderboard...');
+                const saveResponse = await fetch(`${UPSTASH_URL}/set/test_leaderboard/${encodeURIComponent(JSON.stringify(testLeaderboard))}`, {
+                    headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                });
+                const saveResult = await saveResponse.json();
+                log(`   Save response: ${JSON.stringify(saveResult)}`);
+
+                log('📝 Loading test leaderboard...');
+                const loadResponse = await fetch(`${UPSTASH_URL}/get/test_leaderboard`, {
+                    headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                });
+                const loadResult = await loadResponse.json();
+
+                if (loadResult.result) {
+                    const retrievedLeaderboard = JSON.parse(loadResult.result);
+                    log(`   Retrieved ${retrievedLeaderboard.length} entries`);
+
+                    // Verify data integrity
+                    if (retrievedLeaderboard.length === testLeaderboard.length &&
+                        retrievedLeaderboard[0].name === 'Alice') {
+                        log('✅ Leaderboard test PASSED!');
+                        setStatus('✅ Leaderboard test PASSED!', 'success');
+                    } else {
+                        log('❌ Leaderboard test FAILED! Data mismatch');
+                        setStatus('❌ Leaderboard test FAILED!', 'error');
+                    }
+                } else {
+                    log('❌ Leaderboard test FAILED! No data returned');
+                    setStatus('❌ Leaderboard test FAILED!', 'error');
+                }
+
+                // Cleanup
+                log('🧹 Cleaning up test leaderboard...');
+                await fetch(`${UPSTASH_URL}/del/test_leaderboard`, {
+                    headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` }
+                });
+                log('✅ Cleanup completed');
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`);
+                setStatus(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function runFullTest() {
+            log('🎯 Starting full test suite...');
+            setStatus('Running full test suite...', 'info');
+
+            await runBasicTest();
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+            await runLeaderboardTest();
+
+            log('🎊 Full test suite completed!');
+            setStatus('🎊 Full test suite completed!', 'success');
+        }
+    </script>
+</body>
+</html>
