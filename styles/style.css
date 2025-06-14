@@ -7315,3 +7315,19 @@ input[type=number] {
 .slider-cover-dots .splide__pagination {
   transform: translate(-50%, -40px) !important;
 }
+
+/* Endless Horizontal Scroll Effect */
+@keyframes endless-scroll {
+    0% {
+        background-position: 0% center;
+    }
+    100% {
+        background-position: -200% center;
+    }
+}
+
+.card-overlay {
+    background-position: 0 center;
+    background-size: 200% 100% !important;
+    background-repeat: repeat-x !important;
+    animation: endless-scroll 120s linear infinite;
