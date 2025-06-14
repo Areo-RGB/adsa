@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import Link from 'next/link'
+import Layout from '@/components/Layout'
 
 export default function Home() {
   return (
@@ -12,33 +12,30 @@ export default function Home() {
         <meta name="mobile-web-app-capable" content="yes" />
       </Head>
 
-      <div>
-        <div id="preloader">
-          <div className="spinner-border color-highlight" role="status"></div>
-        </div>
-
-        <div id="page">
-          <div className="header header-auto-show header-fixed header-logo-center">
-            <Link href="/home" className="header-title default-link">AppKit</Link>
-            <a href="#" data-menu="menu-main" className="header-icon header-icon-1 default-link">
-              <i className="fas fa-bars"></i>
-            </a>
-            <a href="#" data-toggle-theme className="header-icon header-icon-4 show-on-theme-dark default-link">
-              <i className="fas fa-sun"></i>
-            </a>
-            <a href="#" data-toggle-theme className="header-icon header-icon-4 show-on-theme-light default-link">
-              <i className="fas fa-moon"></i>
-            </a>
-            <a href="#" data-menu="menu-share" className="header-icon header-icon-3 default-link">
-              <i className="fas fa-share-alt"></i>
-            </a>
-          </div>
-
-          <div className="page-content">
-            {/* Page content will go here */}
+      <Layout 
+        title="AppKit" 
+        activeNav="home"
+        showFooter={false}
+      >
+        <div className="container mx-auto p-4">
+          <h1 className="text-3xl font-bold mb-4">Welcome to AppKit</h1>
+          <p className="text-gray-600 mb-6">Your mobile-first web application</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="card card-style">
+              <h4 className="font-20 mb-2">Components</h4>
+              <p className="mb-3">Explore our extensive component library.</p>
+              <a href="/components" className="btn btn-sm bg-highlight">View Components</a>
+            </div>
+            
+            <div className="card card-style">
+              <h4 className="font-20 mb-2">Pages</h4>
+              <p className="mb-3">Browse through our page examples.</p>
+              <a href="/pages" className="btn btn-sm bg-highlight">View Pages</a>
+            </div>
           </div>
         </div>
-      </div>
+      </Layout>
     </>
   )
 }
