@@ -1,0 +1,184 @@
+.card-square {
+    aspect-ratio: 1 / 1;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+}
+
+/* ELO System Views - Display/Hide Logic */
+.elo-view { 
+    display: none; 
+}
+.elo-view.active { 
+    display: block; 
+}
+
+/* Player Selection Enhancement */
+.card[data-player-id]:hover {
+    border-color: #4A89DC !important;
+    background-color: rgba(74, 137, 220, 0.05) !important;
+}
+
+/* Match Areas Enhancement */
+[data-player-id]:hover {
+    border-color: #4A89DC !important;
+    background-color: rgba(74, 137, 220, 0.05) !important;
+}
+
+/* Live View Body Modifications */
+body.live-view-active-body { 
+    overflow: hidden; 
+}
+body.live-view-active-body #page { 
+    height: 100vh; 
+    display: flex; 
+    flex-direction: column; 
+}
+body.live-view-active-body .page-content {
+    flex-grow: 1; 
+    overflow: hidden; 
+    padding-bottom: 0 !important;
+    display: flex; 
+    flex-direction: column;
+}
+
+/* News Ticker Animation */
+.news-ticker {
+    white-space: nowrap; 
+    overflow: hidden;
+    animation: scroll-left 30s linear infinite;
+    padding: 8px 0;
+}
+@keyframes scroll-left { 
+    0% { transform: translateX(100%); } 
+    100% { transform: translateX(-100%); } 
+}
+.ticker-item { 
+    margin-right: 50px; 
+}
+
+/* Fullscreen Overlay */
+.fullscreen-overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8); 
+    z-index: 9999;
+    display: none; 
+    align-items: center; 
+    justify-content: center;
+}
+.fullscreen-overlay.active { 
+    display: flex; 
+}
+
+/* Notification Animations */
+.notification { 
+    animation: slideInRight 0.3s ease;
+    background: #4A89DC !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+.notification .content {
+    color: white !important;
+}
+.notification p {
+    color: white !important;
+    margin-bottom: 0 !important;
+}
+@keyframes slideInRight { 
+    from { transform: translateX(100%); opacity: 0; } 
+    to { transform: translateX(0); opacity: 1; } 
+}
+@keyframes slideOutRight { 
+    from { transform: translateX(0); opacity: 1; } 
+    to { transform: translateX(100%); opacity: 0; } 
+}
+
+/* Responsive Navigation */
+@media (max-width: 768px) {
+    #elo-header-navigation .btn { 
+        padding: 6px; 
+        min-width: 36px; 
+        height: 36px; 
+    }
+    #elo-header-navigation .btn i { 
+        font-size: 16px; 
+    }
+}
+
+/* Compact player selection card */
+.player-card-compact {
+    /* Remove enforced square aspect to allow tighter height */
+    aspect-ratio: unset;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+}
+.player-card-compact h5 {
+    font-size: 0.9rem !important;
+}
+.player-card-compact p {
+    font-size: 0.7rem !important;
+}
+
+/* Muted border utilities for player selection */
+.border-green-muted {
+    border: 2px solid #8ccf8c !important; /* Soft green */
+}
+.border-red-muted {
+    border: 2px solid #e0a0a0 !important; /* Soft red */
+}
+.bg-fade-green-light {
+    background: rgba(140, 207, 140, 0.12) !important;
+}
+
+/* Leaderboard reveal animation */
+@keyframes leaderboardSlideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.leaderboard-card-animate {
+  opacity: 0; /* ensure starting state */
+  animation-name: leaderboardSlideInRight;
+  animation-duration: 0.6s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+/* Leaderboard grid layout to fit all players without scroll */
+#leaderboard-list-container.leaderboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+#leaderboard-list-container .leaderboard-grid-item {
+  margin: 0;
+}
+
+.leaderboard-grid-item .content {
+  padding: 8px 10px;
+}
+
+.leaderboard-grid-item h5 {
+  font-size: 14px;
+}
+
+.leaderboard-grid-item h4 {
+  font-size: 16px;
+}
