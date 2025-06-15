@@ -184,36 +184,528 @@ body {
   font-size: 18px;
 }
 
+/* Tab Navigation */
+.tabNavigation {
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  padding: 4px;
+}
+
+.tabButton {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 12px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tabButton.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.tabButton:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tabContent {
+  display: none;
+}
+
+.tabContent.active {
+  display: block;
+}
+
+/* Playlist Controls */
+.playlistControls {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.createPlaylistBtn {
+  background: #ff6b6b;
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.createPlaylistBtn:hover {
+  background: #ff5252;
+  transform: translateY(-2px);
+}
+
+/* Playlists Grid */
+.playlistsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.playlistCard {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.playlistCard:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.playlistThumbnail {
+  width: 100%;
+  height: 160px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.playlistThumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.emptyPlaylistIcon {
+  font-size: 48px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.playlistVideoCount {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.playlistInfo {
+  padding: 16px;
+  color: white;
+}
+
+.playlistInfo h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.playlistInfo p {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Playlist Detail View */
+.playlistDetailView {
+  width: 100%;
+}
+
+.playlistHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.backButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.backButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.playlistTitle {
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.playlistActions {
+  display: flex;
+  gap: 8px;
+}
+
+.playButton {
+  background: #4CAF50;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.playButton:hover {
+  background: #45a049;
+}
+
+.deleteButton {
+  background: #f44336;
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.deleteButton:hover {
+  background: #da190b;
+}
+
+/* Playlist Videos */
+.playlistVideos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.playlistVideoCard {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.playlistVideoCard:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.playlistVideoCard .videoThumbnail {
+  width: 80px;
+  height: 45px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.playlistVideoCard .videoInfo {
+  flex: 1;
+  color: white;
+  padding: 0;
+}
+
+.playlistVideoCard .videoInfo h4 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.playlistVideoCard .videoInfo p {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.playlistVideoCard .videoActions {
+  display: flex;
+  gap: 8px;
+}
+
+.playVideoBtn, .removeFromPlaylistBtn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playVideoBtn:hover {
+  background: #4CAF50;
+}
+
+.removeFromPlaylistBtn:hover {
+  background: #f44336;
+}
+
+/* Video Actions */
+.videoActions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.videoCard:hover .videoActions {
+  opacity: 1;
+}
+
+.addToPlaylistBtn {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  color: #333;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addToPlaylistBtn:hover {
+  background: #ff6b6b;
+  color: white;
+}
+
+/* Playlist Modal */
+.playlistModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+}
+
+.playlistModalContent {
+  background: rgba(20, 20, 20, 0.95);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.playlistModalContent h3 {
+  color: white;
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.playlistList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.playlistOption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.playlistOption:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.videoCount {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.createNewBtn {
+  background: #ff6b6b;
+  border: none;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.createNewBtn:hover {
+  background: #ff5252;
+}
+
+.cancelBtn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.cancelBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* File-based playlist indicators */
+.file-based-playlist {
+  border-left: 4px solid #4CAF50;
+}
+
+.fileBasedIndicator {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #4CAF50;
+  color: white;
+  padding: 4px 6px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.fileBasedBadge {
+  font-size: 14px;
+  color: #4CAF50;
+  font-weight: normal;
+  opacity: 0.8;
+}
+
+.noPlaylistsMessage {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  text-align: center;
+  font-style: italic;
+  padding: 20px;
+  margin: 0;
+}
+
 /* Mobile-first responsive design */
 @media (max-width: 768px) {
   .customControls {
     padding: 15px;
     opacity: 1;
   }
-  
+
   .controlButtons {
     gap: 8px;
   }
-  
+
   .controlButton {
     min-width: 40px;
     min-height: 40px;
     padding: 8px;
     font-size: 14px;
   }
-  
+
   .progressBar {
     height: 6px;
     margin-bottom: 12px;
   }
-  
+
   .timeDisplay {
     font-size: 11px;
   }
-  
-  
+
+
   .speedMenu {
     bottom: 50px;
+  }
+
+  .playlistsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+
+  .playlistHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .playlistTitle {
+    text-align: left;
+    font-size: 18px;
+  }
+
+  .playlistActions {
+    justify-content: center;
+  }
+
+  .tabNavigation {
+    margin-bottom: 16px;
+  }
+
+  .tabButton {
+    padding: 10px 12px;
+    font-size: 13px;
   }
 }
 
@@ -222,7 +714,7 @@ body {
   .customControls {
     opacity: 1;
   }
-  
+
   .container:active .customControls {
     opacity: 1;
   }
@@ -233,29 +725,51 @@ body {
   .customControls {
     padding: 12px;
   }
-  
+
   .controlButtons {
     gap: 6px;
   }
-  
+
   .controlButton {
     min-width: 36px;
     min-height: 36px;
     font-size: 12px;
   }
-  
+
   .progressBar {
     height: 8px;
   }
-  
+
   .dualMode .videoContainer {
     flex-direction: column;
     gap: 1px;
   }
-  
+
   .dualMode .video {
     width: 100%;
     height: 50%;
+  }
+
+  .playlistThumbnail {
+    height: 140px;
+  }
+
+  .playlistHeader {
+    gap: 8px;
+  }
+
+  .playlistTitle {
+    font-size: 16px;
+  }
+
+  .playlistVideoCard {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .playlistVideoCard .videoThumbnail {
+    width: 60px;
+    height: 34px;
   }
 }
 
@@ -381,23 +895,23 @@ body {
 
 /* Landscape mobile in dual mode */
 @media (max-width: 768px) and (orientation: landscape) {
-  
+
   .timeNumber {
     font-size: 80px;
     min-width: 150px;
   }
-  
+
   .timeAdjustButton {
     width: 50px;
     height: 50px;
     font-size: 24px;
   }
-  
+
   .timerDisplay {
     gap: 15px;
     margin-bottom: 20px;
   }
-  
+
   .timerButton {
     padding: 8px 16px;
     font-size: 14px;
@@ -410,27 +924,27 @@ body {
     font-size: 100px;
     min-width: 180px;
   }
-  
+
   .timeAdjustButton {
     width: 45px;
     height: 45px;
     font-size: 22px;
   }
-  
+
   .timerDisplay {
     gap: 12px;
     margin-bottom: 25px;
   }
-  
+
   .timerControls {
     gap: 15px;
   }
-  
+
   .timerButton {
     padding: 10px 20px;
     font-size: 15px;
   }
-  
+
   .closeButton {
     top: 15px;
     right: 15px;
@@ -561,12 +1075,12 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 12px;
   }
-  
+
   .selectionTitle {
     font-size: 20px;
     margin-bottom: 15px;
   }
-  
+
   .videoSelectionContainer {
     padding: 15px;
   }
@@ -577,27 +1091,27 @@ body {
     grid-template-columns: 1fr;
     gap: 10px;
   }
-  
+
   .videoCard {
     border-radius: 8px;
   }
-  
+
   .videoThumbnail {
     height: 120px;
   }
-  
+
   .defaultThumbnail {
     font-size: 36px;
   }
-  
+
   .videoInfo {
     padding: 12px;
   }
-  
+
   .videoInfo h3 {
     font-size: 14px;
   }
-  
+
   .selectionTitle {
     font-size: 18px;
   }
@@ -663,11 +1177,11 @@ body {
     left: 15px;
     right: 15px;
   }
-  
+
   .largeTitle {
     font-size: 24px;
   }
-  
+
   .videoNumber {
     font-size: 14px;
   }
@@ -679,11 +1193,11 @@ body {
     left: 12px;
     right: 12px;
   }
-  
+
   .largeTitle {
     font-size: 20px;
   }
-  
+
   .videoNumber {
     font-size: 13px;
   }

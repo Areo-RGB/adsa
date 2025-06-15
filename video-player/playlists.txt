@@ -1,0 +1,27 @@
+# Video Player Playlists Configuration
+# Format: Each playlist starts with [PLAYLIST: Name] followed by videos
+# Video format: TITLE | URL | POSTER_URL (poster is optional)
+# Lines starting with # are comments
+
+
+[PLAYLIST: Bent]
+Stationary Fast Feet | https://firebasestorage.googleapis.com/v0/b/db-video-97f16.firebasestorage.app/o/ue5%2F02_1_Stationary_Fast_Feet.mp4?alt=media
+Forwards Backwards | https://firebasestorage.googleapis.com/v0/b/db-video-97f16.firebasestorage.app/o/ue5%2F03_2_Forwards_Backwards.mp4?alt=media
+Side to Side | https://firebasestorage.googleapis.com/v0/b/db-video-97f16.firebasestorage.app/o/ue5%2F04_3_Side_to_Side.mp4?alt=media
+Side to Side with Step | https://firebasestorage.googleapis.com/v0/b/db-video-97f16.firebasestorage.app/o/ue5%2F05_4_Side_to_Side_with_Step.mp4?alt=media
+Forwards Backwards Hops | https://firebasestorage.googleapis.com/v0/b/db-video-97f16.firebasestorage.app/o/ue5%2F06_5_Forwards_Backwards_Hops.mp4?alt=media
+
+
+
+# Instructions for adding new playlists:
+# 1. Create a new section with [PLAYLIST: Your Playlist Name]
+# 2. Add videos in the format: Title | Video URL | Poster URL (optional)
+# 3. Save this file
+# 4. Refresh the video player to see your changes
+#
+# Tips:
+# - Use descriptive playlist names
+# - Keep video titles concise but descriptive
+# - Poster images improve the visual experience
+# - Test video URLs to ensure they work
+# - Use HTTPS URLs when possible for better security
