@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fullscreen Reaction Trainer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* High-contrast styles for outdoor visibility */
+      html {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #cccccc; /* Neutral background for the page */
+        height: 100%;
+      }
+
+      /* --- Component Styles --- */
+      #reaction-trainer-component {
+        font-family:
+          'Exo 2',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        background-color: #ffffff; /* Pure white background */
+        padding: 0 2vw; /* Remove top/bottom padding, keep side padding */
+        border-radius: 0; /* Sharp corners for a stark look */
+        box-shadow: none; /* Remove shadow for clarity */
+        width: 95%;
+        max-width: 600px;
+        margin: 0 auto; /* Remove vertical margin, keep horizontal centering */
+        text-align: center;
+        border: 3px solid #000000; /* Thick, high-contrast border */
+        border-top: none; /* Remove border if it touches screen edge */
+        border-bottom: none;
+        min-height: 100vh; /* Make component fill screen height */
+        box-sizing: border-box; /* Include padding/border in height calculation */
+        display: flex;
+        flex-direction: column;
+      }
+
+      #reaction-trainer-component h2 {
+        margin-top: 0;
+        padding-top: 15px; /* Add space from top edge */
+        padding-bottom: 10px; /* Add space below title */
+        font-size: clamp(1.8rem, 5vw, 2.2rem); /* Increased font size */
+        color: #000000; /* Pure black text */
+        font-weight: 700;
+      }
+
+      .trainer-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin: 0; /* Centered by its parent now, so no margin needed */
+        width: 100%;
+        max-width: 450px; /* Prevent it from being too large */
+        aspect-ratio: 1 / 1; /* Enforce a square shape */
+      }
+
+      .trainer-square {
+        width: 100%;
+        padding-top: 100%;
+        position: relative;
+        border-radius: 8px;
+        background-color: #e0e0e0; /* Light gray for inactive state */
+        transition: all 0.1s ease;
+        cursor: pointer;
+        box-shadow: none; /* No shadow */
+        border: 3px solid #000000; /* Strong border for inactive state */
+      }
+
+      .trainer-square.active {
+        transform: none; /* No scaling effect */
+        box-shadow: none; /* No glow effect */
+        border-width: 6px; /* Thicker border indicates active state clearly */
+      }
+
+      .trainer-square .number {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: clamp(3em, 12vw, 5em); /* Much larger numbers */
+        font-weight: 700;
+        color: #000000; /* Black numbers on inactive squares */
+        user-select: none;
+        transition: none;
+      }
+
+      /* Set text color for best contrast on active backgrounds */
+      .trainer-square[data-number='1'].active .number,
+      .trainer-square[data-number='4'].active .number {
+        color: #000000; /* Black text for yellow and green */
+      }
+      .trainer-square[data-number='2'].active .number,
+      .trainer-square[data-number='3'].active .number {
+        color: #ffffff; /* White text for red and blue */
+      }
+
+      .trainer-square .reaction-time-display {
+        display: none;
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: clamp(1.1rem, 3vw, 1.3rem); /* Larger text */
+        font-weight: 700;
+        color: #ffffff; /* White text */
+        background-color: #000000; /* Solid black background */
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .trainer-square.active .reaction-time-display {
+        display: block;
+      }
+
+      /* Background colors for active squares remain, but remove 'color' property */
+      .trainer-square[data-number='1'].active {
+        background-color: #ffcc00; /* Yellow */
+      }
+      .trainer-square[data-number='2'].active {
+        background-color: #ff3b30; /* Red */
+      }
+      .trainer-square[data-number='3'].active {
+        background-color: #007aff; /* Blue */
+      }
+      .trainer-square[data-number='4'].active {
+        background-color: #34c759; /* Green */
+      }
+
+      #grid-placeholder {
+        flex-grow: 1; /* Allow this element to fill available vertical space */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 0; /* Prevents flexbox overflow bugs */
+        padding: 20px 0; /* Add some vertical padding */
+      }
+
+      .settings-container {
+        margin-top: auto; /* Push settings to the bottom in game mode */
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 0;
+        border-top: 3px solid #000;
+        border-bottom: 3px solid #000;
+      }
+
+      .mode-selection-area {
+        display: flex;
+        justify-content: center;
+      }
+      .mode-selection-area .control-group {
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .divider {
+        border: none;
+        border-top: 2px solid #000; /* Bolder divider */
+        margin: 15px 0;
+      }
+
+      .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+      }
+
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .control-group label {
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+        color: #000000; /* Black text */
+        margin-bottom: 8px;
+        font-weight: 700; /* Bolder label */
+      }
+      .settings-container input,
+      .settings-container select {
+        padding: 12px 14px; /* More padding */
+        border-radius: 4px;
+        border: 2px solid #000; /* High-contrast border */
+        font-size: clamp(1rem, 3vw, 1.1rem);
+        background-color: #fff;
+        width: 100%;
+        box-sizing: border-box;
+        font-family: 'Exo 2', sans-serif;
+      }
+
+      .trainer-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+        padding-bottom: 15px; /* Add space from bottom edge */
+      }
+      .trainer-buttons button {
+        padding: 14px 24px;
+        font-size: clamp(1.1rem, 3.5vw, 1.2rem);
+        font-weight: 700;
+        border: 3px solid #000; /* Strong border */
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.1s ease;
+        flex-grow: 1;
+        max-width: 200px;
+      }
+      .trainer-buttons button:active {
+        transform: scale(0.98);
+      }
+      #start-btn {
+        background-color: #008000; /* Darker, saturated green */
+        color: white;
+      }
+      #stop-btn {
+        background-color: #cc0000; /* Darker, saturated red */
+        color: white;
+      }
+      #shuffle-btn {
+        background-color: #4b0082; /* Darker, saturated purple (indigo) */
+        color: white;
+        flex-basis: 100%;
+        margin-top: 10px;
+        max-width: 410px;
+      }
+
+      /* Unified disabled state for all buttons with high contrast */
+      #start-btn:disabled,
+      #stop-btn:disabled,
+      #shuffle-btn:disabled {
+        background-color: #a9a9a9; /* Dark Gray */
+        color: #666; /* Darker text for contrast on gray */
+        border-color: #666;
+        cursor: not-allowed;
+      }
+
+      .trainer-display {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 0;
+        border: 3px solid #000;
+      }
+      #main-display {
+        font-size: clamp(2.5rem, 8vw, 3.5rem); /* Larger font */
+        font-weight: 700;
+        color: #000000;
+        font-variant-numeric: tabular-nums;
+        transition: opacity 0.3s ease;
+      }
+      #main-display.idle {
+        opacity: 0.7;
+      }
+
+      #results-display {
+        font-size: clamp(1rem, 3vw, 1.1rem);
+        color: #000; /* Black text */
+        min-height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .avg-time-display {
+        font-size: clamp(1.2rem, 4vw, 1.6rem); /* Larger */
+        font-weight: 700; /* Bolder */
+        color: #000000;
+        margin-top: -5px;
+        margin-bottom: 10px;
+        min-height: 24px;
+        align-items: center;
+        justify-content: center;
+        display: none; /* Hidden by default */
+        flex-wrap: wrap;
+      }
+      .avg-time-display strong {
+        margin: 0 4px;
+        font-weight: 700;
+      }
+      #missed-hits-display {
+        color: #cc0000; /* Darker red for misses */
+        margin-left: 8px;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .interval-display {
+        font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+        font-weight: 700;
+        color: #000000;
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border: 2px solid #000;
+        border-radius: 4px;
+        text-align: center;
+      }
+      
+      .interval-controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 10px;
+      }
+      
+      .interval-btn {
+        padding: 8px 16px;
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+        font-weight: 700;
+        border: 2px solid #000;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: #007aff;
+        color: white;
+        transition: transform 0.1s ease;
+      }
+      
+      .interval-btn:hover {
+        background-color: #0056d6;
+      }
+      
+      .interval-btn:active {
+        transform: scale(0.95);
+      }
+      
+      .interval-btn:disabled {
+        background-color: #a9a9a9;
+        color: #666;
+        border-color: #666;
+        cursor: not-allowed;
+      }
+      
+      #game-overlay .interval-display {
+        color: #e0e0e0;
+        background-color: #333;
+        border-color: #666;
+      }
+      
+      #game-overlay .interval-btn {
+        background-color: #007aff;
+        border-color: #007aff;
+      }
+      
+      #game-overlay .interval-btn:hover {
+        background-color: #0056d6;
+      }
+
+      /* --- FULLSCREEN GAME OVERLAY --- */
+      #game-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000000; /* Pure black background for max contrast */
+        z-index: 9999;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+        gap: 15px;
+      }
+
+      #game-overlay #main-display {
+        color: #fff;
+        flex-shrink: 0;
+        opacity: 1;
+      }
+      #game-overlay .avg-time-display {
+        color: #e0e0e0; /* Light gray text on black */
+      }
+      #game-overlay #missed-hits-display {
+        color: #ff3b30; /* Bright red is good on black */
+      }
+      #game-overlay .trainer-grid {
+        width: 100%;
+        max-width: 500px;
+        display: grid;
+      }
+      #game-overlay #stop-btn {
+        width: 100%;
+        max-width: 410px;
+        flex-shrink: 0;
+      }
+
+      /* Make squares visible in the dark overlay */
+      #game-overlay .trainer-square {
+        border-color: #888; /* Dark gray border for inactive squares */
+      }
+      #game-overlay .trainer-square.active {
+        border-color: #ffffff; /* White border for active square */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="reaction-trainer-component">
+      <h2>Reaction Trainer</h2>
+
+      <div class="trainer-display">
+        <div id="main-display-placeholder">
+          <div id="main-display" class="idle">00:00</div>
+        </div>
+        <div id="avg-time-placeholder">
+          <div id="avg-time-display" class="avg-time-display">
+            Avg: <strong>- ms</strong><span id="missed-hits-display"></span>
+          </div>
+        </div>
+        <div id="results-display">
+          <span></span>
+        </div>
+        <div id="interval-display" class="interval-display" style="display: none;">
+          Current Interval: <strong id="interval-value">1000 ms</strong>
+          <div class="interval-controls">
+            <button id="decrease-interval" class="interval-btn">-100ms</button>
+            <button id="increase-interval" class="interval-btn">+100ms</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-container">
+        <!-- Mode Selection -->
+        <div class="mode-selection-area">
+          <div class="control-group">
+            <label for="mode-select">Mode</label>
+            <select id="mode-select">
+              <option value="automatic" selected>Automatic</option>
+              <option value="interactive">Interactive</option>
+            </select>
+          </div>
+        </div>
+        <hr class="divider" />
+        <!-- Common Settings -->
+        <div class="settings-grid">
+          <div class="control-group">
+            <label for="targets-select">Targets</label
+            ><select id="targets-select">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4" selected>4</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="shuffle-select">Shuffle Mid-Game</label
+            ><select id="shuffle-select">
+              <option value="no" selected>No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+        </div>
+        <hr class="divider" />
+        <!-- Mode-Specific Settings -->
+        <div id="mode-specific-settings">
+          <div id="automatic-settings-panel" class="settings-grid">
+            <div class="control-group" id="control-group-interval">
+              <label for="interval-select">Interval (ms)</label
+              ><select id="interval-select">
+                <option value="250">250</option>
+                <option value="500">500</option>
+                <option value="750">750</option>
+                <option value="1000" selected>1000</option>
+                <option value="1250">1250</option>
+                <option value="1500">1500</option>
+                <option value="1750">1750</option>
+                <option value="2000">2000</option>
+                <option value="2500">2500</option>
+              </select>
+            </div>
+            <div class="control-group" id="control-group-duration">
+              <label for="session-duration">Duration (s)</label
+              ><select id="session-duration">
+                <option value="5">5s</option>
+                <option value="10">10s</option>
+                <option value="15">15s</option>
+                <option value="20">20s</option>
+                <option value="25">25s</option>
+                <option value="30" selected>30s</option>
+              </select>
+            </div>
+          </div>
+          <div id="interactive-settings-panel" class="settings-grid hidden">
+            <div class="control-group" id="control-group-cards">
+              <label for="card-amount-input">Cards to Press</label
+              ><input type="number" id="card-amount-input" value="10" min="5" step="1" />
+            </div>
+            <div class="control-group" id="control-group-livetime">
+              <label for="livetime-select">Card Livetime</label
+              ><select id="livetime-select">
+                <option value="none" selected>No Limit</option>
+                <option value="250">250 ms</option>
+                <option value="500">500 ms</option>
+                <option value="750">750 ms</option>
+                <option value="1000">1000 ms</option>
+                <option value="1250">1250 ms</option>
+                <option value="1500">1500 ms</option>
+                <option value="2000">2000 ms</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="grid-placeholder">
+        <div class="trainer-grid">
+          <div class="trainer-square" id="square-pos-1">
+            <span class="number">1</span><span class="reaction-time-display"></span>
+          </div>
+          <div class="trainer-square" id="square-pos-2">
+            <span class="number">2</span><span class="reaction-time-display"></span>
+          </div>
+          <div class="trainer-square" id="square-pos-3">
+            <span class="number">3</span><span class="reaction-time-display"></span>
+          </div>
+          <div class="trainer-square" id="square-pos-4">
+            <span class="number">4</span><span class="reaction-time-display"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="trainer-buttons" id="buttons-placeholder">
+        <button id="start-btn">Start</button>
+        <button id="stop-btn" disabled>Stop</button>
+        <button id="shuffle-btn">Shuffle Numbers Now</button>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const gameOverlay = document.createElement('div');
+        gameOverlay.id = 'game-overlay';
+        document.body.appendChild(gameOverlay);
+
+        const squares = document.querySelectorAll('.trainer-square');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const mainDisplay = document.getElementById('main-display');
+        const trainerGrid = document.querySelector('.trainer-grid');
+        const resultsDisplay = document.getElementById('results-display');
+        const avgTimeDisplay = document.getElementById('avg-time-display');
+        const missedHitsDisplay = document.getElementById('missed-hits-display');
+        const intervalDisplay = document.getElementById('interval-display');
+        const intervalValueDisplay = document.getElementById('interval-value');
+        const increaseIntervalBtn = document.getElementById('increase-interval');
+        const decreaseIntervalBtn = document.getElementById('decrease-interval');
+        const intervalDisplayParent = intervalDisplay.parentNode;
+
+        const mainDisplayPlaceholder = document.getElementById('main-display-placeholder');
+        const gridPlaceholder = document.getElementById('grid-placeholder');
+        const buttonsPlaceholder = document.getElementById('buttons-placeholder');
+        const avgTimePlaceholder = document.getElementById('avg-time-placeholder');
+
+        const modeSelect = document.getElementById('mode-select');
+        const targetsSelect = document.getElementById('targets-select');
+        const intervalSelect = document.getElementById('interval-select');
+        const durationInput = document.getElementById('session-duration');
+        const cardAmountInput = document.getElementById('card-amount-input');
+        const livetimeSelect = document.getElementById('livetime-select');
+        const shuffleSelect = document.getElementById('shuffle-select');
+
+        const automaticSettingsPanel = document.getElementById('automatic-settings-panel');
+        const interactiveSettingsPanel = document.getElementById('interactive-settings-panel');
+
+        let activeSquareNumber = null,
+          gameIntervalId = null,
+          sessionTimerId = null,
+          reactionTimerId = null,
+          cardLivetimeId = null;
+        let timeRemaining = 0,
+          isRunning = false;
+        let reactionStartTime = 0,
+          reactionTimes = [],
+          correctHits = 0,
+          targetHits = 0,
+          missedHits = 0;
+        let midGameShuffleDone = false;
+        let currentInterval = 0;
+
+        const formatTime = s =>
+          `${Math.floor(s / 60)
+            .toString()
+            .padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
+        const assignInitialNumbers = () =>
+          squares.forEach((sq, i) => {
+            sq.dataset.number = i + 1;
+            sq.querySelector('.number').textContent = i + 1;
+          });
+        const calculateAverage = arr =>
+          arr.length === 0 ? 0 : Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
+
+        const shuffleNumbers = () => {
+          let numbers = [1, 2, 3, 4];
+          for (let i = numbers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+          }
+          squares.forEach((square, index) => {
+            square.dataset.number = numbers[index];
+            square.querySelector('.number').textContent = numbers[index];
+          });
+        };
+
+        const updateVisibleControls = () => {
+          const mode = modeSelect.value;
+          if (mode === 'automatic') {
+            automaticSettingsPanel.classList.remove('hidden');
+            interactiveSettingsPanel.classList.add('hidden');
+          } else {
+            // interactive
+            automaticSettingsPanel.classList.add('hidden');
+            interactiveSettingsPanel.classList.remove('hidden');
+          }
+        };
+
+        const resetUI = () => {
+          // Clear all possible timers to prevent rogue calls
+          clearInterval(gameIntervalId);
+          clearInterval(sessionTimerId);
+          clearInterval(reactionTimerId);
+          clearTimeout(cardLivetimeId);
+          gameIntervalId = sessionTimerId = reactionTimerId = cardLivetimeId = null;
+
+          squares.forEach(sq => {
+            sq.classList.remove('active');
+            sq.querySelector('.reaction-time-display').textContent = '';
+          });
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          shuffleBtn.disabled = false;
+
+          document
+            .querySelectorAll('.settings-container select, .settings-container input')
+            .forEach(el => (el.disabled = false));
+
+          resultsDisplay.innerHTML = '<span></span>';
+          avgTimeDisplay.style.display = 'none';
+          missedHitsDisplay.textContent = '';
+          mainDisplay.classList.add('idle');
+          intervalDisplay.style.display = 'none';
+          increaseIntervalBtn.disabled = true;
+          decreaseIntervalBtn.disabled = true;
+
+          if (modeSelect.value === 'automatic') {
+            timeRemaining = parseInt(durationInput.value, 10);
+            mainDisplay.textContent = formatTime(timeRemaining);
+          } else {
+            // interactive
+            targetHits = parseInt(cardAmountInput.value, 10);
+            mainDisplay.textContent = `0 / ${targetHits}`;
+          }
+          updateVisibleControls();
+        };
+
+        const getRandomSquare = () => {
+          const numTargets = parseInt(targetsSelect.value, 10);
+          const available = Array.from({ length: numTargets }, (_, i) => i + 1);
+          let possible = available.filter(n => n != activeSquareNumber);
+          if (possible.length === 0) possible = available;
+          const nextNum = possible[Math.floor(Math.random() * possible.length)];
+          return document.querySelector(`.trainer-square[data-number='${nextNum}']`);
+        };
+
+        const handleCardTimeout = () => {
+          missedHits++;
+          missedHitsDisplay.innerHTML = `| Missed: <strong>${missedHits}</strong>`;
+          gameLoop();
+        };
+
+        const activateSquare = square => {
+          clearTimeout(cardLivetimeId);
+          if (reactionTimerId) clearInterval(reactionTimerId);
+          document.querySelectorAll('.reaction-time-display').forEach(d => (d.textContent = ''));
+          if (activeSquareNumber)
+            document
+              .querySelector(`[data-number="${activeSquareNumber}"]`)
+              ?.classList.remove('active');
+
+          activeSquareNumber = square.dataset.number;
+          square.classList.add('active');
+
+          if (modeSelect.value === 'interactive') {
+            reactionStartTime = Date.now();
+            const reactionDisplay = square.querySelector('.reaction-time-display');
+            reactionTimerId = setInterval(() => {
+              if (reactionStartTime > 0) {
+                const elapsed = Date.now() - reactionStartTime;
+                reactionDisplay.textContent = `${elapsed} ms`;
+              }
+            }, 10);
+
+            if (livetimeSelect.value !== 'none') {
+              const livetime = parseInt(livetimeSelect.value, 10);
+              cardLivetimeId = setTimeout(handleCardTimeout, livetime);
+            }
+          }
+        };
+
+        const gameLoop = () => {
+          if (modeSelect.value === 'automatic') {
+            const totalDuration = parseInt(durationInput.value, 10);
+            if (
+              shuffleSelect.value === 'yes' &&
+              !midGameShuffleDone &&
+              timeRemaining <= Math.floor(totalDuration / 2)
+            ) {
+              midGameShuffleDone = true;
+              shuffleNumbers();
+            }
+          }
+
+          const nextSquare = getRandomSquare();
+          if (nextSquare) activateSquare(nextSquare);
+        };
+
+        const handleSquareClick = e => {
+          const clickedSquare = e.currentTarget;
+          if (!isRunning) {
+            let currentNum = parseInt(clickedSquare.dataset.number, 10);
+            let nextNum = (currentNum % 4) + 1;
+            clickedSquare.dataset.number = nextNum;
+            clickedSquare.querySelector('.number').textContent = nextNum;
+            return;
+          }
+
+          if (
+            modeSelect.value === 'interactive' &&
+            reactionStartTime &&
+            clickedSquare.dataset.number == activeSquareNumber
+          ) {
+            if (cardLivetimeId) clearTimeout(cardLivetimeId);
+            if (reactionTimerId) clearInterval(reactionTimerId);
+            reactionTimerId = null;
+
+            const reactionTime = Date.now() - reactionStartTime;
+            reactionTimes.push(reactionTime);
+            correctHits++;
+
+            const avg = calculateAverage(reactionTimes);
+            avgTimeDisplay.querySelector('strong').textContent = `${avg} ms`;
+            mainDisplay.textContent = `${correctHits} / ${targetHits}`;
+
+            reactionStartTime = 0;
+
+            const midPoint = Math.floor(targetHits / 2);
+            if (shuffleSelect.value === 'yes' && correctHits === midPoint && !midGameShuffleDone) {
+              shuffleNumbers();
+              midGameShuffleDone = true;
+            }
+
+            if (correctHits >= targetHits) {
+              handleStop();
+            } else {
+              gameLoop();
+            }
+          }
+        };
+
+        const countdown = () => {
+          timeRemaining--;
+          mainDisplay.textContent = formatTime(timeRemaining);
+          if (timeRemaining <= 0) handleStop();
+        };
+
+        const handleStart = () => {
+          midGameShuffleDone = false;
+          isRunning = true;
+          missedHits = 0;
+
+          document
+            .querySelectorAll('.settings-container select, .settings-container input')
+            .forEach(el => (el.disabled = true));
+          startBtn.disabled = true;
+          shuffleBtn.disabled = true;
+          stopBtn.disabled = false;
+          mainDisplay.classList.remove('idle');
+
+          gameOverlay.style.display = 'flex';
+          gameOverlay.appendChild(mainDisplay);
+          if (modeSelect.value === 'interactive') {
+            avgTimeDisplay.style.display = 'flex';
+            avgTimeDisplay.querySelector('strong').textContent = `- ms`;
+            if (livetimeSelect.value !== 'none') {
+              missedHitsDisplay.innerHTML = `| Missed: <strong>0</strong>`;
+            } else {
+              missedHitsDisplay.innerHTML = '';
+            }
+            gameOverlay.appendChild(avgTimeDisplay);
+          }
+          gameOverlay.appendChild(trainerGrid);
+          gameOverlay.appendChild(stopBtn);
+
+          reactionTimes = [];
+          correctHits = 0;
+          activeSquareNumber = null;
+
+          if (modeSelect.value === 'automatic') {
+            timeRemaining = parseInt(durationInput.value, 10);
+            mainDisplay.textContent = formatTime(timeRemaining);
+            sessionTimerId = setInterval(countdown, 1000);
+            currentInterval = parseInt(intervalSelect.value, 10);
+            intervalValueDisplay.textContent = `${currentInterval} ms`;
+            intervalDisplay.style.display = 'block';
+            gameOverlay.appendChild(intervalDisplay);
+            increaseIntervalBtn.disabled = false;
+            decreaseIntervalBtn.disabled = false;
+            gameIntervalId = setInterval(gameLoop, currentInterval);
+            gameLoop();
+          } else {
+            // interactive
+            targetHits = parseInt(cardAmountInput.value, 10);
+            mainDisplay.textContent = `0 / ${targetHits}`;
+            gameLoop();
+          }
+        };
+
+        const handleStop = () => {
+          isRunning = false;
+
+          // Call the full reset function which handles clearing all timers
+          resetUI();
+
+          // Restore elements from overlay
+          mainDisplayPlaceholder.appendChild(mainDisplay);
+          avgTimePlaceholder.appendChild(avgTimeDisplay);
+          gridPlaceholder.appendChild(trainerGrid);
+          buttonsPlaceholder.insertBefore(stopBtn, shuffleBtn);
+          intervalDisplayParent.appendChild(intervalDisplay);
+          intervalDisplay.style.display = 'none';
+          increaseIntervalBtn.disabled = true;
+          decreaseIntervalBtn.disabled = true;
+          gameOverlay.style.display = 'none';
+
+          if (modeSelect.value === 'interactive') {
+            const avg = calculateAverage(reactionTimes);
+            avgTimeDisplay.querySelector('strong').textContent = `${avg > 0 ? avg + ' ms' : 'N/A'}`;
+            if (livetimeSelect.value !== 'none') {
+              missedHitsDisplay.innerHTML = `| Missed: <strong>${missedHits}</strong>`;
+            } else {
+              missedHitsDisplay.innerHTML = '';
+            }
+            avgTimeDisplay.style.display = 'flex';
+            resultsDisplay.innerHTML = `<span>Session Complete.</span>`;
+          } else {
+            avgTimeDisplay.style.display = 'none';
+            resultsDisplay.innerHTML = '<span>Session stopped.</span>';
+          }
+        };
+
+        const adjustInterval = delta => {
+          if (!isRunning || modeSelect.value !== 'automatic') return;
+          currentInterval = Math.max(250, Math.min(2500, currentInterval + delta));
+          clearInterval(gameIntervalId);
+          gameIntervalId = setInterval(gameLoop, currentInterval);
+          intervalValueDisplay.textContent = `${currentInterval} ms`;
+        };
+
+        startBtn.addEventListener('click', handleStart);
+        stopBtn.addEventListener('click', handleStop);
+        shuffleBtn.addEventListener('click', shuffleNumbers);
+        squares.forEach(square => square.addEventListener('click', handleSquareClick));
+        modeSelect.addEventListener('change', resetUI);
+        [
+          durationInput,
+          cardAmountInput,
+          intervalSelect,
+          livetimeSelect,
+          shuffleSelect,
+          targetsSelect,
+        ].forEach(input => input.addEventListener('change', resetUI));
+        increaseIntervalBtn.addEventListener('click', () => adjustInterval(100));
+        decreaseIntervalBtn.addEventListener('click', () => adjustInterval(-100));
+
+        assignInitialNumbers();
+        resetUI();
+      });
+    </script>
+  </body>
+</html>
